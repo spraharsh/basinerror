@@ -8,7 +8,7 @@ from pele.distance import Distance
 from pele.optimize._quench import fire, steepest_descent, modifiedfire_cpp
 from scipy.integrate import ode
 
-fr
+
 
 
 def FindMinimumHSWCA(foldname):
@@ -27,7 +27,6 @@ def FindMinimumHSWCA(foldname):
                        boxvec=boxv,
                        ndim=sysparams.ndim.value,
                        distance_method=Distance.PERIODIC)
-
     # ret = steepest_descent(initial_coords, potential)
     # ret = fire(initial_coords, potential, iprint=1)
     # E, V = print(potential.getEnergyGradient(initial_coords))

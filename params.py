@@ -5,7 +5,6 @@ from pele.utils.cell_scale import get_box_length, get_ncellsx_scale
 from enum import Enum
 import json
 
-
 BASE_DIRECTORY = '/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv'
 
 class SystemParamHSWCA(Enum):
@@ -18,11 +17,11 @@ class SystemParamHSWCA(Enum):
     # The seed should ideally determine every randomly generated
     # extra parameters
     seed = 0
-
     # particle parameters
     n_part = 8
     radius_mean = 1.0
     radius_std = 0.05
+    
 
     # potential parameters
     use_cell_lists = False
@@ -151,8 +150,7 @@ def load_secondary_params(folder):
     hs_radii = np.loadtxt(folder + '/hs_radii.txt', delimiter=',')
     initial_coords = np.loadtxt(folder + '/initial_coords.txt', delimiter=',')
     box_length = np.loadtxt(folder + '/box_length.txt', delimiter=',')
-    return hs_radii, initial_coords, box_length
-
+    return hs_radii, initial_coords, float(box_length)
 
 
 

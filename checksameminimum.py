@@ -1,11 +1,13 @@
+#!/usr/bin/env python3
 """
 Module for functions that determine whether the minimum is the same or not.
 This has been adopted from CheckSameMinimum in basinvolume.
 
 Assumes that the particle isn't a rattler
 """
-import numpy as np
 from types import SimpleNamespace
+import numpy as np
+
 
 
 
@@ -15,10 +17,11 @@ class CheckSameMinimum:
 
     @details    Container and methods for identifying minima
     """
-    
-    def __init__(self, ctol, dim, boxl=-1, minimalist_max_len=1):
-        """
 
+    def __init__(self, ctol, dim, boxl=-1,
+                 minimalist_max_len=1, minima_database_location=None, update_database=True):
+        """
+        
 
         Parameters
         ----------
@@ -28,26 +31,41 @@ class CheckSameMinimum:
 
         boxl : length of box, negative value assumes infinite box, positive
                value implies periodic boundary conditions with those conditions
+        minima_database_location: filepath
+               if the location is specified then we want to use the minima in the database
+        update_database: bool
+               if this is true then we keep updating the database every run.
         Returns
         -------
-
         out : None
         """
         self.ctol = ctol
         self.dim = dim
         self.boxl = boxl
 
-        # list of minima as identified by the coords
-        self.minimalist = []
+        # list of minima as identified by the coords. if the minima database is not defined
+        # it is assumed to be empty. if minima database is specified and update database
+        # is true, we will update the database when we dump the map
+        
+        try:
+            self.minimalist = np.load(minima_database_location)
+        except:
+            self.minimalist = []
+
         #  We also want to store the initial coords in the container
         #  because we want to be able to order accordingly
+        
         self.initial_coords_list = []
+        self.minima_database_location = minima_database_location
+        self.update_database = update_database
+        
         # orderparamlist[i] = arg where i is the corresponding argument
         # in the initial coordinates where arg is the is the argument
         # of the corresponding minimum in the minimalist
         # this is important because it defines
         # our map between the initial coords to the
         # minima
+        
         self.orderparamlist = []
         self.minimalist_l = minimalist_max_len
 
@@ -75,6 +93,7 @@ class CheckSameMinimum:
         # we want reasonable dimensions on the coordinates first
         # because we care about the coordinates of each particle for these
         # algorithms. we also impose periodic boundary conditions
+        
         final_minimum = self.box_reshape_coords(final_minimum)
         self.initial_coords_list.append(initial_coords)
         if failed_quench:
@@ -87,7 +106,7 @@ class CheckSameMinimum:
                                                               final_minimum,
                                                               part_ind)
 
-                if (self.check_same_structure(aligned_final_minimum, minimum)):
+                if self.check_same_structure(aligned_final_minimum, minimum):
                     self.orderparamlist.append(i)
                     minima_asssigned = True
                     break
@@ -105,8 +124,6 @@ class CheckSameMinimum:
              put in a box. This is useful to reorganize the flat
              pele arrays by particle and make sure we're not breaking
              periodicity
-
-
 
         Parameters
         ----------
@@ -140,8 +157,7 @@ class CheckSameMinimum:
         d_array = np.array(list(map(np.linalg.norm, dist_vec_array)))
         if (np.max(d_array) < self.ctol):
             return True
-        else:
-            return False
+        return False
 
     def put_in_box(self, minimum):
         """Parameters
@@ -176,11 +192,14 @@ class CheckSameMinimum:
         driftless_min = map(lambda x: x-drift, obtained_minimum)
         return np.array(list(driftless_min))
 
-    def dump_map(self, foldpath):
+    def dump_map(self, foldpath, quench_name=None):
         """saves the parameters in files in the corresponding folderpath
 
            file names are tied to the maximum number of minima possible
            since that should basically keep us together
+           if update database is True then we want to update the minimalist
+           with the new minima. 
+        
         Parameters
         ----------
         self: type
@@ -191,21 +210,22 @@ class CheckSameMinimum:
 
         maxminstr = str(self.minimalist_l)
         file_fun = (lambda prefix, name : prefix +
-                    '/' + name + maxminstr + '.txt')
-        np.savetxt(file_fun(foldpath, 'initial_coords'),
-                   np.array(self.initial_coords_list),
-                   delimiter=',')
-        np.savetxt(file_fun(foldpath, '/order_params'),
-                   np.array(self.orderparamlist),
-                   delimiter=',')
-        
-        np.savetxt(file_fun(foldpath, '/minimalist'),
-                   np.array([a.flatten() for a in self.minimalist]),
-                   delimiter=',')
+                    '/' + name + maxminstr + '.npy')
+        np.save(file_fun(foldpath, 'initial_coords'),
+                   np.array(self.initial_coords_list))
+        np.save(file_fun(foldpath, '/order_params'),
+                   np.array(self.orderparamlist))
+        if self.update_database is False:
+            np.save(file_fun(foldpath, '/minimalist'),
+                       np.array([a.flatten() for a in self.minimalist]))
+        else:
+            np.save(self.minima_database_location,
+                    np.array([a.flatten() for a in self.minimalist]))
+            
         
 
     @staticmethod
-    def loadmap(foldpath, max_minima_l):
+    def load_map(foldpath, max_minima_l):
         """ loads data from file location
 
         
@@ -219,17 +239,12 @@ class CheckSameMinimum:
         """
         maxminstr = str(max_minima_l)
         file_fun = (lambda prefix, name : prefix +
-                    '/' + name  + maxminstr + '.txt')
+                    '/' + name  + maxminstr + '.npy')
         res = SimpleNamespace()
-        res.initial_coords = np.loadtxt(file_fun(foldpath, 'initial_coords'),
-                                    delimiter=',')
-
-        res.order_params = np.loadtxt(file_fun(foldpath, '/order_params'),
-                                  delimiter=',')
-
-        res.minimalist = np.loadtxt(file_fun(foldpath, '/minimalist'),
-                                delimiter=',')
-        return res
+        res.initial_coords = np.load(file_fun(foldpath, 'initial_coords'))
+        res.order_params = np.load(file_fun(foldpath, '/order_params'))
+        res.minimalist = np.load(file_fun(foldpath, '/minimalist'))
+        return res 
 
 
 if __name__ == "__main__":
@@ -237,3 +252,4 @@ if __name__ == "__main__":
     a = np.array([1.1, 2, 3])
     b = np.array([1, 2, 3])
     th.minimalist = [a]
+    

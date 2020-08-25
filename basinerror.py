@@ -15,7 +15,7 @@ np.random.seed(0)              # check how to use seed sequences later on
 
 
 
-
+QUENCH_FOLDER_NAME = 'scratch'
 
 
 def quench_mixed_optimizer(pot, x0,  tol=1e-4, T=1,

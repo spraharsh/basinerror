@@ -60,13 +60,12 @@ def test_check_save_load():
     print(min_check.initial_coords_list)
     print(min_check.orderparamlist)
     foldpath = os.getcwd() + '/testdata'
-    os.makedirs(foldpath, exist_ok=True)
+    os.makedirs(fossldpath, exist_ok=True)
     min_check.dump_map(foldpath)
-    res = min_check.loadmap(foldpath, max_minima_l=1)
-    print(res.initial_coords)
-    print(res.order_params)
-    print(res.minimalist)
-    assert(1==2)
+    res = min_check.load_map(foldpath, max_minima_l=1)
+    assert(np.all(res.initial_coords == np.array(min_check.initial_coords_list)))
+    print(np.all(res.order_params == np.array(min_check.orderparamlist)))
+    print(np.all(res.minimalist == np.array(min_check.minimalist)))
 
 
 

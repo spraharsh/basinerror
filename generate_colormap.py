@@ -1,4 +1,8 @@
 #!/usr/bin/env python3.5
+"""
+generates a unique distinct and good looking colormap according to
+https://stackoverflow.com/a/13781114/6788900
+"""
 from typing import Iterable, Tuple
 import colorsys
 import itertools
@@ -63,7 +67,6 @@ def generate_color_map(ncolors):
     """
     sample_colors = list(itertools.islice(css_colors(), ncolors))
     return colors.ListedColormap(sample_colors)
-    
 
 
 if __name__ == "__main__":
@@ -73,6 +76,6 @@ if __name__ == "__main__":
     cmap = colors.ListedColormap(sample_colors)
     gradient = np.linspace(0, 1, ncolors)
     gradient = np.vstack((gradient, gradient))
-    print(gradient)
+    
     plt.imshow(gradient, cmap=cmap)
     plt.show()
