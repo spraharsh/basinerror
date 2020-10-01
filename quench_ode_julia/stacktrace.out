@@ -1,0 +1,44 @@
+Traceback (most recent call last):
+  File "/home/praharsh/.local/lib/python3.8/site-packages/julia/pseudo_python_cli.py", line 308, in main
+    python(**vars(ns))
+  File "/home/praharsh/.local/lib/python3.8/site-packages/julia/pseudo_python_cli.py", line 59, in python
+    scope = runpy.run_path(script, run_name="__main__")
+  File "/home/praharsh/anaconda3/envs/changebranch3/lib/python3.8/runpy.py", line 263, in run_path
+    return _run_module_code(code, init_globals, run_name,
+  File "/home/praharsh/anaconda3/envs/changebranch3/lib/python3.8/runpy.py", line 96, in _run_module_code
+    _run_code(code, mod_globals, init_globals,
+  File "/home/praharsh/anaconda3/envs/changebranch3/lib/python3.8/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "interface.py", line 29, in <module>
+    de.init(prob, de.Tsit5())
+RuntimeError: Julia exception: MethodError: no method matching similar(::Float64, ::Type{Float64})
+Closest candidates are:
+  similar(!Matched::Array{T,1}, ::Type) where T at array.jl:377
+  similar(!Matched::Array{T,2}, ::Type) where T at array.jl:378
+  similar(!Matched::Array, ::Type, !Matched::Tuple{Vararg{Int64,N}}) where N at array.jl:380
+  ...
+Stacktrace:
+ [1] alg_cache(::OrdinaryDiffEq.Tsit5, ::Float64, ::Float64, ::Type{T} where T, ::Type{T} where T, ::Type{T} where T, ::Float64, ::Float64, ::DiffEqBase.ODEFunction{true,PyObject,LinearAlgebra.UniformScaling{Bool},Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing}, ::Float64, ::Float64, ::Float64, ::DiffEqBase.NullParameters, ::Bool, ::Val{true}) at /home/praharsh/.julia/packages/OrdinaryDiffEq/yBOI4/src/caches/low_order_rk_caches.jl:357
+ [2] __init(::DiffEqBase.ODEProblem{Float64,Tuple{Float64,Float64},true,DiffEqBase.NullParameters,DiffEqBase.ODEFunction{true,PyObject,LinearAlgebra.UniformScaling{Bool},Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing},Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}},DiffEqBase.StandardODEProblem}, ::OrdinaryDiffEq.Tsit5, ::Tuple{}, ::Tuple{}, ::Tuple{}, ::Type{Val{true}}; saveat::Tuple{}, tstops::Tuple{}, d_discontinuities::Tuple{}, save_idxs::Nothing, save_everystep::Bool, save_on::Bool, save_start::Bool, save_end::Bool, callback::Nothing, dense::Bool, calck::Bool, dt::Float64, dtmin::Nothing, dtmax::Float64, force_dtmin::Bool, adaptive::Bool, gamma::Rational{Int64}, abstol::Nothing, reltol::Nothing, qmin::Rational{Int64}, qmax::Int64, qsteady_min::Int64, qsteady_max::Int64, qoldinit::Rational{Int64}, fullnormalize::Bool, failfactor::Int64, beta1::Nothing, beta2::Nothing, maxiters::Int64, internalnorm::typeof(DiffEqBase.ODE_DEFAULT_NORM), internalopnorm::typeof(LinearAlgebra.opnorm), isoutofdomain::typeof(DiffEqBase.ODE_DEFAULT_ISOUTOFDOMAIN), unstable_check::typeof(DiffEqBase.ODE_DEFAULT_UNSTABLE_CHECK), verbose::Bool, timeseries_errors::Bool, dense_errors::Bool, advance_to_tstop::Bool, stop_at_next_tstop::Bool, initialize_save::Bool, progress::Bool, progress_steps::Int64, progress_name::String, progress_message::typeof(DiffEqBase.ODE_DEFAULT_PROG_MESSAGE), userdata::Nothing, allow_extrapolation::Bool, initialize_integrator::Bool, alias_u0::Bool, alias_du0::Bool, initializealg::OrdinaryDiffEq.DefaultInit, kwargs::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at /home/praharsh/.julia/packages/OrdinaryDiffEq/yBOI4/src/solve.jl:274
+ [3] __init(::DiffEqBase.ODEProblem{Float64,Tuple{Float64,Float64},true,DiffEqBase.NullParameters,DiffEqBase.ODEFunction{true,PyObject,LinearAlgebra.UniformScaling{Bool},Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing},Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}},DiffEqBase.StandardODEProblem}, ::OrdinaryDiffEq.Tsit5, ::Tuple{}, ::Tuple{}, ::Tuple{}, ::Type{Val{true}}) at /home/praharsh/.julia/packages/OrdinaryDiffEq/yBOI4/src/solve.jl:66 (repeats 5 times)
+ [4] init_call(::DiffEqBase.ODEProblem{Float64,Tuple{Float64,Float64},true,DiffEqBase.NullParameters,DiffEqBase.ODEFunction{true,PyObject,LinearAlgebra.UniformScaling{Bool},Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing},Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}},DiffEqBase.StandardODEProblem}, ::OrdinaryDiffEq.Tsit5; merge_callbacks::Bool, kwargs::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at /home/praharsh/.julia/packages/DiffEqBase/kRzKx/src/solve.jl:32
+ [5] init_call(::DiffEqBase.ODEProblem{Float64,Tuple{Float64,Float64},true,DiffEqBase.NullParameters,DiffEqBase.ODEFunction{true,PyObject,LinearAlgebra.UniformScaling{Bool},Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing},Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}},DiffEqBase.StandardODEProblem}, ::OrdinaryDiffEq.Tsit5) at /home/praharsh/.julia/packages/DiffEqBase/kRzKx/src/solve.jl:19
+ [6] init(::DiffEqBase.ODEProblem{Float64,Tuple{Float64,Float64},true,DiffEqBase.NullParameters,DiffEqBase.ODEFunction{true,PyObject,LinearAlgebra.UniformScaling{Bool},Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing},Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}},DiffEqBase.StandardODEProblem}, ::OrdinaryDiffEq.Tsit5; kwargs::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at /home/praharsh/.julia/packages/DiffEqBase/kRzKx/src/solve.jl:44
+ [7] init(::DiffEqBase.ODEProblem{Float64,Tuple{Float64,Float64},true,DiffEqBase.NullParameters,DiffEqBase.ODEFunction{true,PyObject,LinearAlgebra.UniformScaling{Bool},Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing},Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}},DiffEqBase.StandardODEProblem}, ::OrdinaryDiffEq.Tsit5) at /home/praharsh/.julia/packages/DiffEqBase/kRzKx/src/solve.jl:37
+ [8] invokelatest(::Any, ::Any, ::Vararg{Any,N} where N; kwargs::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at ./essentials.jl:710
+ [9] invokelatest(::Any, ::Any, ::Vararg{Any,N} where N) at ./essentials.jl:709
+ [10] _pyjlwrap_call(::Function, ::Ptr{PyCall.PyObject_struct}, ::Ptr{PyCall.PyObject_struct}) at /home/praharsh/.julia/packages/PyCall/zqDXB/src/callback.jl:28
+ [11] pyjlwrap_call(::Ptr{PyCall.PyObject_struct}, ::Ptr{PyCall.PyObject_struct}, ::Ptr{PyCall.PyObject_struct}) at /home/praharsh/.julia/packages/PyCall/zqDXB/src/callback.jl:49
+ [12] macro expansion at /home/praharsh/.julia/packages/PyCall/zqDXB/src/exception.jl:93 [inlined]
+ [13] #110 at /home/praharsh/.julia/packages/PyCall/zqDXB/src/pyfncall.jl:43 [inlined]
+ [14] disable_sigint at ./c.jl:446 [inlined]
+ [15] __pycall! at /home/praharsh/.julia/packages/PyCall/zqDXB/src/pyfncall.jl:42 [inlined]
+ [16] _pycall!(::PyObject, ::PyObject, ::Tuple{Array{String,1}}, ::Int64, ::Ptr{Nothing}) at /home/praharsh/.julia/packages/PyCall/zqDXB/src/pyfncall.jl:29
+ [17] _pycall! at /home/praharsh/.julia/packages/PyCall/zqDXB/src/pyfncall.jl:11 [inlined]
+ [18] #_#117 at /home/praharsh/.julia/packages/PyCall/zqDXB/src/pyfncall.jl:86 [inlined]
+ [19] (::PyObject)(::Array{String,1}) at /home/praharsh/.julia/packages/PyCall/zqDXB/src/pyfncall.jl:86
+ [20] top-level scope at none:4
+ [21] eval(::Module, ::Any) at ./boot.jl:331
+ [22] exec_options(::Base.JLOptions) at ./client.jl:272
+ [23] _start() at ./client.jl:506
+-2
