@@ -7,6 +7,7 @@ import json
 
 BASE_DIRECTORY = '/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv'
 
+
 class SystemParamHSWCA(Enum):
     """ Parameters that uniquely define a system along with
         a start coordinate set for minimization. As done for HS_WCA
@@ -21,7 +22,6 @@ class SystemParamHSWCA(Enum):
     n_part = 8
     radius_mean = 1.0
     radius_std = 0.05
-    
 
     # potential parameters
     use_cell_lists = False
@@ -49,9 +49,8 @@ class SystemParamInversePower(Enum):
 
     # potential parameters
     use_cell_lists = False
-    power = 2.5                 # hertz power
+    power = 2.5  # hertz power
     eps = 1
-
 
 
 class SystemParamInversePowerBinary(Enum):
@@ -70,13 +69,12 @@ class SystemParamInversePowerBinary(Enum):
     r1 = 1.0
     r2 = 1.4
     rstd1 = 0.05
-    rstd2 = 0.05*1.4
+    rstd2 = 0.05 * 1.4
 
     # potential parameters
     use_cell_lists = False
-    power = 2.5                 # hertz power
+    power = 2.5  # hertz power
     eps = 1
-
 
 
 class SystemParamBLJ(Enum):
@@ -90,7 +88,7 @@ class SystemParamBLJ(Enum):
     # The seed should ideally determine every randomly generated
     # extra parameters
     seed = 0
-    
+
 
 def save_params(params_to_save, folder):
     """Saves the parameters
@@ -102,9 +100,6 @@ def save_params(params_to_save, folder):
 
     with open(filename, 'w') as f:
         json.dump(paramdict, f)
-
-
-
 
 
 def load_params(folder):
@@ -128,16 +123,16 @@ def generate_save_secondary_params(par, folder):
 
     # for binary mixture
     #
-    npart_by_2 = par.n_part.value//2
-    hs_radii = np.array(list(par.r1.value +
-                             par.rstd1.value*np.random.randn(npart_by_2))
-                        + list(par.r2.value +
-                               par.rstd2.value*np.random.randn(par.n_part.value
-                                                               - npart_by_2)))
+    npart_by_2 = par.n_part.value // 2
+    hs_radii = np.array(
+        list(par.r1.value + par.rstd1.value * np.random.randn(npart_by_2)) +
+        list(par.r2.value +
+             par.rstd2.value * np.random.randn(par.n_part.value - npart_by_2)))
     print(hs_radii)
     print(len(hs_radii))
     box_length = get_box_length(hs_radii, par.ndim.value, par.phi.value)
-    initial_coords = np.random.rand(par.n_part.value*par.ndim.value)*box_length
+    initial_coords = np.random.rand(
+        par.n_part.value * par.ndim.value) * box_length
     print(len(initial_coords), "initial_coords length")
     np.savetxt(folder + '/hs_radii.txt', hs_radii, delimiter=',')
     np.savetxt(folder + '/initial_coords.txt', initial_coords, delimiter=',')
@@ -151,7 +146,6 @@ def load_secondary_params(folder):
     initial_coords = np.loadtxt(folder + '/initial_coords.txt', delimiter=',')
     box_length = np.loadtxt(folder + '/box_length.txt', delimiter=',')
     return hs_radii, initial_coords, float(box_length)
-
 
 
 def generate_params_from_foldername(foldername):
@@ -173,10 +167,9 @@ if True:
         paramdict[name] = member.value
     print("unique directory name " + namestr)
     # make the directory
-    foldername = datadir+'/' + namestr
+    foldername = datadir + '/' + namestr
     os.makedirs(foldername, exist_ok=True)
     # fname = foldername + '/systemdata.json'
-
     # Inverse power saving
     save_params(param, foldername)
     generate_save_secondary_params(param, foldername)

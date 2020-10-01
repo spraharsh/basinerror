@@ -9,17 +9,19 @@ from types import SimpleNamespace
 import numpy as np
 
 
-
-
 class CheckSameMinimum:
     """
     @brief      Container and methods for identifying minima
 
     @details    Container and methods for identifying minima
     """
-
-    def __init__(self, ctol, dim, boxl=-1,
-                 minimalist_max_len=1, minima_database_location=None, update_database=True):
+    def __init__(self,
+                 ctol,
+                 dim,
+                 boxl=-1,
+                 minimalist_max_len=1,
+                 minima_database_location=None,
+                 update_database=True):
         """
         
 
@@ -46,7 +48,7 @@ class CheckSameMinimum:
         # list of minima as identified by the coords. if the minima database is not defined
         # it is assumed to be empty. if minima database is specified and update database
         # is true, we will update the database when we dump the map
-        
+
         try:
             self.minimalist = np.load(minima_database_location)
         except:
@@ -54,23 +56,26 @@ class CheckSameMinimum:
 
         #  We also want to store the initial coords in the container
         #  because we want to be able to order accordingly
-        
+
         self.initial_coords_list = []
         self.minima_database_location = minima_database_location
         self.update_database = update_database
-        
+
         # orderparamlist[i] = arg where i is the corresponding argument
         # in the initial coordinates where arg is the is the argument
         # of the corresponding minimum in the minimalist
         # this is important because it defines
         # our map between the initial coords to the
         # minima
-        
+
         self.orderparamlist = []
         self.minimalist_l = minimalist_max_len
 
-    def add_minimum(self, final_minimum, initial_coords,
-                    failed_quench, part_ind=0):
+    def add_minimum(self,
+                    final_minimum,
+                    initial_coords,
+                    failed_quench,
+                    part_ind=0):
         """ function that checks if the minimum corresponds to any previous
             minima in the list and adds it to the new minima
 
@@ -93,7 +98,7 @@ class CheckSameMinimum:
         # we want reasonable dimensions on the coordinates first
         # because we care about the coordinates of each particle for these
         # algorithms. we also impose periodic boundary conditions
-        
+
         final_minimum = self.box_reshape_coords(final_minimum)
         self.initial_coords_list.append(initial_coords)
         if failed_quench:
@@ -102,9 +107,8 @@ class CheckSameMinimum:
         else:
             minima_asssigned = False
             for i, minimum in enumerate(self.minimalist):
-                aligned_final_minimum = self.align_structures(minimum,
-                                                              final_minimum,
-                                                              part_ind)
+                aligned_final_minimum = self.align_structures(
+                    minimum, final_minimum, part_ind)
 
                 if self.check_same_structure(aligned_final_minimum, minimum):
                     self.orderparamlist.append(i)
@@ -114,7 +118,7 @@ class CheckSameMinimum:
             if (minima_asssigned is False):
                 if len(self.minimalist) < self.minimalist_l:
                     self.minimalist.append(final_minimum)
-                    self.orderparamlist.append(len(self.minimalist)-1)
+                    self.orderparamlist.append(len(self.minimalist) - 1)
                 else:
                     self.orderparamlist.append(-2)
         return None
@@ -137,8 +141,7 @@ class CheckSameMinimum:
             boxed_coords = coords % self.boxl
         else:
             boxed_coords = coords.copy()
-        return boxed_coords.reshape(len(coords) // self.dim,
-                                    self.dim)
+        return boxed_coords.reshape(len(coords) // self.dim, self.dim)
 
     def check_same_structure(self, aligned_minimum, correct_minimum):
         """ checks whether the structure corresponding to
@@ -170,8 +173,7 @@ class CheckSameMinimum:
         else:
             return minimum % self.boxl
 
-    def align_structures(self, correct_minimum, obtained_minimum,
-                         part_ind):
+    def align_structures(self, correct_minimum, obtained_minimum, part_ind):
         """ aligns the coordinates of one particle from the obtained_minimum
             with the coordinates of the
             other minimum
@@ -189,7 +191,7 @@ class CheckSameMinimum:
         aligned coordinates of the new minimum
         """
         drift = obtained_minimum[part_ind] - correct_minimum[part_ind]
-        driftless_min = map(lambda x: x-drift, obtained_minimum)
+        driftless_min = map(lambda x: x - drift, obtained_minimum)
         return np.array(list(driftless_min))
 
     def dump_map(self, foldpath, quench_name=None):
@@ -209,23 +211,21 @@ class CheckSameMinimum:
         """
 
         maxminstr = str(self.minimalist_l)
-        file_fun = (lambda prefix, name : prefix +
-                    '/' + name + maxminstr + '.npy')
+        file_fun = (
+            lambda prefix, name: prefix + '/' + name + maxminstr + '.npy')
         np.save(file_fun(foldpath, 'initial_coords'),
-                   np.array(self.initial_coords_list))
+                np.array(self.initial_coords_list))
         np.save(file_fun(foldpath, '/order_params'),
-                   np.array(self.orderparamlist))
+                np.array(self.orderparamlist))
         if self.update_database is False:
             np.save(file_fun(foldpath, '/minimalist'),
-                       np.array([a.flatten() for a in self.minimalist]))
+                    np.array([a.flatten() for a in self.minimalist]))
         else:
             np.save(self.minima_database_location,
                     np.array([a.flatten() for a in self.minimalist]))
-            
-        
 
     @staticmethod
-    def load_map(foldpath, max_minima_l):
+    def load_map(foldpath, max_minima_l, minima_database_path=None):
         """ loads data from file location
 
         
@@ -238,13 +238,16 @@ class CheckSameMinimum:
             max length of minimalist
         """
         maxminstr = str(max_minima_l)
-        file_fun = (lambda prefix, name : prefix +
-                    '/' + name  + maxminstr + '.npy')
+        file_fun = (
+            lambda prefix, name: prefix + '/' + name + maxminstr + '.npy')
         res = SimpleNamespace()
         res.initial_coords = np.load(file_fun(foldpath, 'initial_coords'))
         res.order_params = np.load(file_fun(foldpath, '/order_params'))
-        res.minimalist = np.load(file_fun(foldpath, '/minimalist'))
-        return res 
+        if minima_database_path == None:
+            res.minimalist = np.load(file_fun(foldpath, '/minimalist'))
+        else:
+            res.minimalist = np.load(minima_database_path)
+        return res
 
 
 if __name__ == "__main__":
@@ -252,4 +255,3 @@ if __name__ == "__main__":
     a = np.array([1.1, 2, 3])
     b = np.array([1, 2, 3])
     th.minimalist = [a]
-    

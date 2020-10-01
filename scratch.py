@@ -14,7 +14,8 @@ def zenos_dichotomy() -> Iterable[Fraction]:
     http://en.wikipedia.org/wiki/1/2_%2B_1/4_%2B_1/8_%2B_1/16_%2B_%C2%B7_%C2%B7_%C2%B7
     """
     for k in itertools.count():
-        yield Fraction(1,2**k)
+        yield Fraction(1, 2**k)
+
 
 def fracs() -> Iterable[Fraction]:
     """
@@ -23,9 +24,10 @@ def fracs() -> Iterable[Fraction]:
     """
     yield Fraction(0)
     for k in zenos_dichotomy():
-        i = k.denominator # [1,2,4,8,16,...]
-        for j in range(1,i,2):
-            yield Fraction(j,i)
+        i = k.denominator  # [1,2,4,8,16,...]
+        for j in range(1, i, 2):
+            yield Fraction(j, i)
+
 
 # can be used for the v in hsv to map linear values 0..1 to something that looks equidistant
 # bias = lambda x: (math.sqrt(x/3)/Fraction(2,3)+Fraction(1,3))/Fraction(6,5)
@@ -33,25 +35,32 @@ def fracs() -> Iterable[Fraction]:
 HSVTuple = Tuple[Fraction, Fraction, Fraction]
 RGBTuple = Tuple[float, float, float]
 
+
 def hue_to_tones(h: Fraction) -> Iterable[HSVTuple]:
-    for s in [Fraction(6,10)]: # optionally use range
-        for v in [Fraction(8,10),Fraction(5,10)]: # could use range too
-            yield (h, s, v) # use bias for v here if you use range
+    for s in [Fraction(6, 10)]:  # optionally use range
+        for v in [Fraction(8, 10), Fraction(5, 10)]:  # could use range too
+            yield (h, s, v)  # use bias for v here if you use range
+
 
 def hsv_to_rgb(x: HSVTuple) -> RGBTuple:
     return colorsys.hsv_to_rgb(*map(float, x))
 
+
 flatten = itertools.chain.from_iterable
+
 
 def hsvs() -> Iterable[HSVTuple]:
     return flatten(map(hue_to_tones, fracs()))
 
+
 def rgbs() -> Iterable[RGBTuple]:
     return map(hsv_to_rgb, hsvs())
 
+
 def rgb_to_css(x: RGBTuple) -> str:
-    uint8tuple = map(lambda y: int(y*255), x)
+    uint8tuple = map(lambda y: int(y * 255), x)
     return "rgb({},{},{})".format(*uint8tuple)
+
 
 def css_colors() -> Iterable[str]:
     return map(list, rgbs())
@@ -63,7 +72,6 @@ def generate_color_map(ncolors):
     """
     sample_colors = list(itertools.islice(css_colors(), ncolors))
     return colors.ListedColormap(sample_colors)
-    
 
 
 if __name__ == "__main__":

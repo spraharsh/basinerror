@@ -6,7 +6,7 @@ Note that our goal is to return the minimum given by the trajectory of the solut
 
 import numpy as np
 import os
-from basinerror import quench_steepest
+from basinerror import quench_cvode_opt, quench_steepest
 from params import load_params, load_secondary_params
 from pele.potentials import InversePower
 from params import BASE_DIRECTORY
@@ -14,7 +14,8 @@ import matplotlib.pyplot as plt
 from pele.optimize._quench import modifiedfire_cpp
 from basinerror import quench_mixed_optimizer
 from checksameminimum import CheckSameMinimum
-QUENCH_FOLDER_NAME = 'quench_mixed_opt_T_6'
+QUENCH_FOLDER_NAME = 'mxopt'
+MINIMA_DATABASE_NAME = 'minima_database.npy'
 
 
 def map_binary_inversepower(quench,
@@ -48,23 +49,24 @@ def map_binary_inversepower(quench,
                              ndim=sysparams.ndim.value,
                              radii=hs_radii * 1.0,
                              boxvec=boxv)
-    ret = quench_mixed_optimizer(potential,
-                                 quench_coords,  # make sure right coords are being passed
-                                 # stepsize=0.001,
-                                 T = 6,
-                                 step=1,
-                                 nsteps=10000,
-                                 conv_tol=1e-2,
-                                 tol=1e-4)
+    # ret = quench_mixed_optimizer(potential,
+    #                              quench_coords,  # make sure right coords are being passed
+    #                              # stepsize=0.001,
+    #                              T=10,
+    #                              # step=1,
+    #                              nsteps=10000,
+    #                              # conv_tol=1e-2,
+    #                              tol=1e-4)
     # ret = quench_steepest(
     #     potential,
     #     quench_coords,  # make sure right coords are being passed
     #     nsteps=2000000,
     #     stepsize=5e-3,  # for steepest descent step size should be small
     #     tol=1e-4)
-    # ret = modifiedfire_cpp(quench_coords, potential, tol=1e-5)
+    ret = quench_cvode_opt(potential, quench_coords, tol=1e-4)
+    # ret = modifiedfire_cpp(quench_coords, potential, tol=1e-4)
     print(ret.nfev)
-    results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps)
+    results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps, ret.nhev)
     return results
 
 
@@ -152,45 +154,51 @@ def map_pointset_loop(foldname,
     ctol = 1e-1
     ndim = 2
     foldpath = BASE_DIRECTORY + '/' + foldname
-    
+
     sysparams = load_params(foldpath)
     (hs_radii, initial_coords, box_length) = load_secondary_params(foldpath)
-    
+
     minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
                                 delimiter=',')
-    minima_container = CheckSameMinimum(ctol,
-                                        ndim,
-                                        boxl=box_length,
-                                        minimalist_max_len=2000,
-                                        minima_database_location=minima_database_path,
-                                        update_database=True)
-    
+    minima_container = CheckSameMinimum(
+        ctol,
+        ndim,
+        boxl=box_length,
+        minimalist_max_len=2000,
+        minima_database_location=minima_database_path,
+        update_database=True)
+
     if use_minima_database == True:
         try:
-            minima_container.minimalist = [minima_container.box_reshape_coords(x)
-                                           for x in np.load(minima_database_path)]
+            minima_container.minimalist = [
+                minima_container.box_reshape_coords(x)
+                for x in np.load(minima_database_path)
+            ]
         except:
             print("warning no minima data found. generating")
-            minima_container.minimalist = [minima_container.box_reshape_coords(minimum_coords)]
+            minima_container.minimalist = [
+                minima_container.box_reshape_coords(minimum_coords)
+            ]
     nfevlist = []
     nstepslist = []
+    nhevlist = []
     for point in pointset:
         res = map_binary_inversepower(quench_steepest, foldname, point,
                                       coordarg)
         minima_container.add_minimum(res[0], point, res[2])
         nfevlist.append(res[3])
         nstepslist.append(res[4])
+        nhevlist.append(res[5])
 
-    
     print(np.average(nfevlist), 'number of function evaluations')
     print(np.average(nstepslist), 'number of steps')
     print(np.average(nstepslist), 'number of steps')
-    
+    print(np.average(nhevlist), "number of hessian evaluations")
     print(minima_container.orderparamlist)
-    
+
     foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME
     os.makedirs(foldpathdata, exist_ok=True)
-    
+
     minima_container.dump_map(foldpathdata)
     # print(minima_container.initial_coords_list)
     # print(minima_container.orderparamlist)
@@ -201,16 +209,17 @@ def map_pointset_loop(foldname,
 if __name__ == "__main__":
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
-    nmesh = 101
+    nmesh = 5
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
-    print(pointset)
-    th = np.array(list(map(list, pointset))).T
-    minima_database_name = 'minima_database.npy'
-    minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + minima_database_name
-    res = map_pointset_loop(foldnameInversePower, pointset,
-                            quench_mixed_optimizer, coordarg, use_minima_database=True, minima_database_path=minima_database_path)
-    
+    # th = np.array(list(map(list, pointset))).T
+    minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
+    res = map_pointset_loop(foldnameInversePower,
+                            pointset,
+                            quench_mixed_optimizer,
+                            coordarg,
+                            use_minima_database=True,
+                            minima_database_path=minima_database_path)
     # print(res)
     # # boollist = np.loadtxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_fire.txt')
     # np.savetxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_mxopt.txt', boollist)

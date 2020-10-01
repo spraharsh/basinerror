@@ -9,8 +9,6 @@ from pele.optimize._quench import fire, steepest_descent, modifiedfire_cpp
 from scipy.integrate import ode
 
 
-
-
 def FindMinimumHSWCA(foldname):
     """ Finds the true minimum corresponding:
         Note Gradient Descent step should be adequately small for this to work
@@ -19,7 +17,7 @@ def FindMinimumHSWCA(foldname):
     sysparams = load_params(foldpath)
     (hs_radii, initial_coords, box_length) = load_secondary_params(foldpath)
     box_length = float(box_length)
-    boxv = [box_length]*sysparams.ndim.value
+    boxv = [box_length] * sysparams.ndim.value
     potential = HS_WCA(use_cell_lists=False,
                        eps=sysparams.eps.value,
                        sca=sysparams.pot_sca.value,
@@ -31,7 +29,10 @@ def FindMinimumHSWCA(foldname):
     # ret = fire(initial_coords, potential, iprint=1)
     # E, V = print(potential.getEnergyGradient(initial_coords))
     # ret = quench_mixed_optimizer(potential, initial_coords, conv_tol=1e-100)
-    ret = quench_mixed_optimizer(potential, initial_coords, conv_tol=0, nsteps=1000)
+    ret = quench_mixed_optimizer(potential,
+                                 initial_coords,
+                                 conv_tol=0,
+                                 nsteps=1000)
     # ret = quench_steepest(potential, initial_coords, stepsize=0.05, nsteps=2000)
     print(ret.nsteps)
     print(ret.nfev)
@@ -46,27 +47,29 @@ def FindMinimumInversePower(foldname):
     sysparams = load_params(foldpath)
     (hs_radii, initial_coords, box_length) = load_secondary_params(foldpath)
     box_length = float(box_length)
-    boxv = [box_length]*sysparams.ndim.value
+    boxv = [box_length] * sysparams.ndim.value
     potential = InversePower(sysparams.power.value,
                              sysparams.eps.value,
                              use_cell_lists=False,
                              ndim=sysparams.ndim.value,
-                             radii=hs_radii*1.0,
+                             radii=hs_radii * 1.0,
                              boxvec=boxv)
     print(box_length, "box_length")
     print(len(initial_coords))
-    initial_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt', delimiter = ',')
+    initial_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
+                                delimiter=',')
     print(initial_coords, 'initial_coords')
     # ret = steepest_descent(initial_coords, potential, dx=1e-4)
     # ret = modifiedfire_cpp(initial_coords, potential, iprint=1, tol=1e-4)
     # E, V = print(potential.getEnergyGradient(initial_coords))
     # ret = quench_mixed_optimizer(potential, initial_coords, conv_tol=1e-100)
     # ret = quench_mixed_optimizer(potential, initial_coords, conv_tol=1e-100, nsteps=3000)
-    ret = quench_steepest(potential,
-                          initial_coords,  # make sure right coords are being passed
-                          stepsize=0.0001,
-                          nsteps=1000,
-                          tol=1e-7)
+    ret = quench_steepest(
+        potential,
+        initial_coords,  # make sure right coords are being passed
+        stepsize=0.0001,
+        nsteps=1000,
+        tol=1e-7)
 
     finalcoords = ret.coords
     print(ret.coords)
@@ -79,8 +82,6 @@ def FindMinimumInversePower(foldname):
     E, V, H = potential.getEnergyGradientHessian(finalcoords)
     print(np.linalg.eigvals(H))
     # print(potential.getEnergyGradient(initial_coords))
-
-
 
 
 if __name__ == "__main__":

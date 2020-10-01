@@ -11,9 +11,8 @@ from matplotlib import colors
 import colorsys
 import random
 import colorcet as cc
-from map_basin_steepest import QUENCH_FOLDER_NAME
+from map_basin_steepest import QUENCH_FOLDER_NAME, MINIMA_DATABASE_NAME
 np.random.seed(0)
-
 
 
 def extract_min_max_spacing(coordslist):
@@ -39,56 +38,72 @@ def extract_min_max_spacing(coordslist):
     res.xmax = np.max(ucoordsx)
     res.ymin = np.min(ucoordsy)
     res.ymax = np.max(ucoordsy)
-    res.xspace = ucoordsx[1] -ucoordsx[0]
+    res.xspace = ucoordsx[1] - ucoordsx[0]
     res.yspace = ucoordsy[1] - ucoordsy[0]
     res.xlen = len(ucoordsx)
     res.ylen = len(ucoordsy)
     return res
 
+
 def _get_colors(num_colors):
     """ generate a unique colormap for use with matplotlib
     """
-    colors_list=[]
+    colors_list = []
     for i in np.arange(0., 360., 360. / num_colors):
-        hue = i/360.
-        lightness = (50 + np.random.rand() * 10)/100.
-        saturation = (90 + np.random.rand() * 10)/100.
+        hue = i / 360.
+        lightness = (50 + np.random.rand() * 10) / 100.
+        saturation = (90 + np.random.rand() * 10) / 100.
         colors_list.append(colorsys.hls_to_rgb(hue, lightness, saturation))
         random.shuffle(colors_list)
-    return colors.ListedColormap(colors_list)
-
-
+    return colors.LinearSegmentedColormap(colors_list)
 
 
 if __name__ == "__main__":
+
+    # load data
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
-    quench_type = QUENCH_FOLDER_NAME
-    data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + QUENCH_FOLDER_NAME
-    data = CheckSameMinimum.load_map(data_fold_path, max_minima_l=2000)
+    minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
+    quench_type = "cvodeopt"
+    # quench_type = "Fire"
+    quench_type = "cvodeopt"
+    data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
+    data = CheckSameMinimum.load_map(data_fold_path,
+                                     max_minima_l=2000,
+                                     minima_database_path=minima_database_path)
     initial_coords = data.initial_coords
     order_params = data.order_params
     minimalist = data.minimalist
+
+    # set min max values
+    vmax = 500
+    vmin = 0
     res = extract_min_max_spacing(initial_coords)
     print(res.xspace, "xspace")
     print(res.yspace, "yspace")
-    (hs_radii, initial_coords, box_length) = load_secondary_params(BASE_DIRECTORY
-                                                                   + '/' +
-                                                                   foldnameInversePower)
+    (hs_radii, initial_coords,
+     box_length) = load_secondary_params(BASE_DIRECTORY + '/' +
+                                         foldnameInversePower)
     op_2d = np.reshape(order_params, (res.xlen, res.ylen))
     print(op_2d)
-    d = lambda x: x/box_length
-    
+    d = lambda x: x / box_length
+
     cmap = colors.ListedColormap(cc.glasbey_bw)
-    # cmapsmall = 
+    cmap2 = 'flag'
+    # cmapsmall =
     plt.imshow(op_2d,
-               extent=[d(res.ymin), d(res.ymax),
-                       d(res.xmin), d(res.xmax)],
-               cmap=cmap)
+               extent=[d(res.ymin),
+                       d(res.ymax),
+                       d(res.xmin),
+                       d(res.xmax)],
+               cmap=cmap,
+               vmin=vmin,
+               vmax=vmax)
     print(np.max(order_params))
     plt.xlabel('x (L)')
     plt.ylabel('y (L)')
     plt.title(quench_type + ' (L = length of box)')
-    plt.savefig(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type + '.pdf')
+    plt.savefig(BASE_DIRECTORY + '/' + foldnameInversePower + '/' +
+                quench_type + '.pdf')
     plt.show()
 # if __name__ == "__main__":
 #     ncolors = 30
@@ -97,8 +112,6 @@ if __name__ == "__main__":
 #     gradient = np.vstack((gradient, gradient))
 #     plt.imshow(gradient, cmap=cmap)
 #     plt.show()
-
-
 
 # deprecated: old save data
 # if __name__ == "__main__":
