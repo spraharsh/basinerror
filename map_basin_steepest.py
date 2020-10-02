@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from pele.optimize._quench import modifiedfire_cpp
 from basinerror import quench_mixed_optimizer
 from checksameminimum import CheckSameMinimum
-QUENCH_FOLDER_NAME = 'mxopt'
+QUENCH_FOLDER_NAME = 'cvodeopt'
 MINIMA_DATABASE_NAME = 'minima_database.npy'
 
 
@@ -55,7 +55,7 @@ def map_binary_inversepower(quench,
     #                              T=10,
     #                              # step=1,
     #                              nsteps=10000,
-    #                              # conv_tol=1e-2,
+    #                              conv_tol=1000000000,
     #                              tol=1e-4)
     # ret = quench_steepest(
     #     potential,
@@ -63,7 +63,7 @@ def map_binary_inversepower(quench,
     #     nsteps=2000000,
     #     stepsize=5e-3,  # for steepest descent step size should be small
     #     tol=1e-4)
-    ret = quench_cvode_opt(potential, quench_coords, tol=1e-4)
+    ret = quench_cvode_opt(potential, quench_coords, tol=1e-5, rtol=1e-8, atol=1e-8)
     # ret = modifiedfire_cpp(quench_coords, potential, tol=1e-4)
     print(ret.nfev)
     results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps, ret.nhev)
@@ -209,7 +209,7 @@ def map_pointset_loop(foldname,
 if __name__ == "__main__":
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
-    nmesh = 5
+    nmesh = 150
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T

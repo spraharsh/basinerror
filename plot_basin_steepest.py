@@ -67,6 +67,8 @@ if __name__ == "__main__":
     # quench_type = "Fire"
     quench_type = "cvodeopt"
     data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
+    print('loading data from')
+    print(data_fold_path)
     data = CheckSameMinimum.load_map(data_fold_path,
                                      max_minima_l=2000,
                                      minima_database_path=minima_database_path)

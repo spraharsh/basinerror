@@ -10,6 +10,7 @@ from pele.optimize import MixedOptimizer, GradientDescent_CPP, LBFGS_CPP # , CVO
 from pele.utils.cell_scale import get_ncellsx_scale
 from pele.utils.cell_scale import get_box_length
 from pele.distance import Distance
+from pele.optimize import CVODEBDFOptimizer
 import numpy as np
 np.random.seed(0)  # check how to use seed sequences later on
 
@@ -63,16 +64,16 @@ def quench_steepest(pot, x0, tol=1e-4, nsteps=10000, stepsize=1e-4):
 
 
 
-# def quench_cvode_opt(pot, x0, tol=1e-4, nsteps=10000):
-#     """ "Subroutine" for quenching steepest descent, add subtract yada yada
-#         to control how information gets returned, basically simply passing
-#         pot, x0 with these default parameters should give identical results
-#         between different pieces.
-#     """
-#     cvode = CVODEBDFOptimizer(pot, x0, tol=tol, atol = 1e-3, rtol = 1e-3)
-#     cvode.run(nsteps)
-#     res = cvode.get_result()
-#     return res
+def quench_cvode_opt(pot, x0, tol=1e-4, nsteps=10000, atol=1e-7, rtol=1e-7):
+    """ "Subroutine" for quenching steepest descent, add subtract yada yada
+        to control how information gets returned, basically simply passing
+        pot, x0 with these default parameters should give identical results
+        between different pieces.
+    """
+    cvode = CVODEBDFOptimizer(pot, x0, tol=tol, atol=atol, rtol=rtol)
+    cvode.run(nsteps)
+    res = cvode.get_result()
+    return res
 
 
 
