@@ -25,14 +25,16 @@ def quench_mixed_optimizer(pot,
                            conv_tol=1e-2,
                            conv_factor=2,
                            nsteps=2000,
-                           H0=1e-10):
+                           H0=1e-10,
+                           rtol=1e-4,
+                           atol=1e-4):
     """ "Subroutine" for quenching mixed optimizer, add subtract yada yada
         to control how information gets returned, basically simply passing
         pot, x0 with these default parameters should give identical results
         between different pieces.
     """
-    mx_opt = MixedOptimizer(pot, x0, tol, T, step, conv_tol, conv_factor,
-                            nsteps)
+    mx_opt = MixedOptimizer(pot, x0, tol, T, step, conv_tol=conv_tol, conv_factor=conv_factor,
+                            nsteps=nsteps, rtol =rtol, atol=atol)
     mx_opt.run(nsteps)
     res = mx_opt.get_result()
     return res

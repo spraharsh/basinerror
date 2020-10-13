@@ -5,8 +5,14 @@ This has been adopted from CheckSameMinimum in basinvolume.
 
 Assumes that the particle isn't a rattler
 """
+from pickle import TRUE
 from types import SimpleNamespace
 import numpy as np
+
+from basinvolume.utils import in_hull, origin_in_hull_2d
+import logging
+
+
 
 
 class CheckSameMinimum:
@@ -21,7 +27,11 @@ class CheckSameMinimum:
                  boxl=-1,
                  minimalist_max_len=1,
                  minima_database_location=None,
-                 update_database=True):
+                 update_database=True,
+                 rattler_check=False,
+                 potential=None,
+                 hs_radii=None,
+                 sca=None):
         """
         
 
@@ -41,10 +51,11 @@ class CheckSameMinimum:
         -------
         out : None
         """
+        if ((potential == None or hs_radii==None or sca==None) and rattler_check == True):
+            raise Exception('can\'t do rattler check without potential details')
         self.ctol = ctol
         self.dim = dim
         self.boxl = boxl
-
         # list of minima as identified by the coords. if the minima database is not defined
         # it is assumed to be empty. if minima database is specified and update database
         # is true, we will update the database when we dump the map
@@ -158,7 +169,7 @@ class CheckSameMinimum:
         # the positions of the particle in the aligned minimum
         # and the correct minimum
         d_array = np.array(list(map(np.linalg.norm, dist_vec_array)))
-        if (np.max(d_array) < self.ctol):
+        if (np.max(d_array) < self.ctol*self.boxl):
             return True
         return False
 
@@ -223,6 +234,85 @@ class CheckSameMinimum:
         else:
             np.save(self.minima_database_location,
                     np.array([a.flatten() for a in self.minimalist]))
+
+
+    def _find_rattlers(self, coords):
+        """
+        finish this, I need to remove the rattler and break.
+        Also need to get compare to existing jammed_packing option
+        :return:
+        copied johannes code from Basinvolume
+        """
+        if self.dim < 4:
+            zmin = self.dim + 1
+        else:
+            raise NotImplementedError
+
+        check_again = range(len(self.hs_radii))
+        self.ss_radii = self.hs_radii * (1. + self.sca)
+        neighbor_indicess, neighbor_distancess \
+            = self.potential.getNeighbors(coords)
+        nrattlers = 0
+        if self.dim != 2:
+            origin = np.zeros(self.dim)
+        while len(check_again) > 0:
+            check_inds = check_again
+            check_again = set()
+            if nrattlers > self.max_nrattlers:
+                logging.warning(self._log("Too many rattlers. Discarding packing."))
+                return False
+            for atomi in check_inds:
+                found_rattler = False
+                no_neighbors = len(neighbor_indicess[atomi])
+                if no_neighbors < zmin:
+                    found_rattler = True
+                    logging.debug(self._log("Particle {} is not isostatic."
+                                            .format(atomi)))
+                else:
+                    if self.dim == 2:
+                        found_rattler = not origin_in_hull_2d(
+                            neighbor_distancess[atomi])
+                    else:
+                        points = (np.asarray(neighbor_distancess[atomi])
+                                  .reshape((-1, self.dim)))
+                        found_rattler = not in_hull(origin, points)
+                    if found_rattler:
+                        logging.debug(self._log("Particle {} is not in "
+                                                "contacts' convex hull."
+                                                .format(atomi)))
+                self.rattlers[atomi] = 0 if found_rattler else 1000
+                self.rattlers_draw[atomi] = float(not found_rattler)
+                if found_rattler:
+                    if atomi in check_again:
+                        check_again.remove(atomi)
+                    for atomj in neighbor_indicess[atomi]:
+                        check_again.add(atomj)
+                        i_in_j = neighbor_indicess[atomj].index(atomi)
+                        del neighbor_indicess[atomj][i_in_j]
+                        del neighbor_distancess[atomj][i_in_j]
+                    nrattlers += 1
+
+        # test that number of contacts is sufficient for bulk modulus to be positive,
+        # see eq 4 in http://journals.aps.org/prl/abstract/10.1103/PhysRevLett.109.095704
+        # see eq 19 in arXiv:1406.1529
+        no_stable = self.nparticles - nrattlers
+        total_contacts = sum([len(neighbor_indices)
+                              for neighbor_indices in neighbor_indicess])
+        N_min = int(2 * (self.dim * (no_stable - 1) + 1))
+        logging.debug(self._log("N_min: {} total_contacts: {}"
+                                .format(N_min, total_contacts)))
+        logging.debug(self._log("Number of rattlers: {}".format(nrattlers)))
+        if nrattlers > self.max_nrattlers:
+            logging.warning(self._log("Too many rattlers. Discarding packing."))
+            return False
+        if total_contacts >= N_min:
+            return True
+        else:
+            logging.warning(self._log("Packing is not globally stable, N_min: {} "
+                                      "total_contacts: {}"
+                                      .format(N_min, total_contacts)))
+            return False
+
 
     @staticmethod
     def load_map(foldpath, max_minima_l, minima_database_path=None):

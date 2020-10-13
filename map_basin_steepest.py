@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from pele.optimize._quench import modifiedfire_cpp
 from basinerror import quench_mixed_optimizer
 from checksameminimum import CheckSameMinimum
-QUENCH_FOLDER_NAME = 'cvodeopt'
+QUENCH_FOLDER_NAME = 'cvode_high_tol'
 MINIMA_DATABASE_NAME = 'minima_database.npy'
 
 
@@ -52,20 +52,22 @@ def map_binary_inversepower(quench,
     # ret = quench_mixed_optimizer(potential,
     #                              quench_coords,  # make sure right coords are being passed
     #                              # stepsize=0.001,
-    #                              T=10,
-    #                              # step=1,
-    #                              nsteps=10000,
-    #                              conv_tol=1000000000,
-    #                              tol=1e-4)
+    #                              T=20,
+    #                              step=1,
+    #                              nsteps=100000,
+    #                              conv_tol=1e-3,
+    #                              tol=1e-5, rtol=1e-4, atol=1e-4)
     # ret = quench_steepest(
     #     potential,
     #     quench_coords,  # make sure right coords are being passed
     #     nsteps=2000000,
     #     stepsize=5e-3,  # for steepest descent step size should be small
     #     tol=1e-4)
-    ret = quench_cvode_opt(potential, quench_coords, tol=1e-5, rtol=1e-8, atol=1e-8)
-    # ret = modifiedfire_cpp(quench_coords, potential, tol=1e-4)
-    print(ret.nfev)
+    ret = quench_cvode_opt(potential, quench_coords, tol=1e-6, rtol=1e-4, atol=1e-4)
+    # ret = modifiedfire_cpp(quench_coords, potential, tol=1e-5)
+    print(ret.nfev, 'nfev')
+    print(ret.nsteps, 'nsteps')
+    # ret['nhev']=0
     results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps, ret.nhev)
     return results
 
@@ -92,7 +94,6 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, coordarg):
 
     # get necessary parameters from the folder
     box_length = float(box_length)
-    print(box_length)
     minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
                                 delimiter=',')
 
@@ -151,7 +152,7 @@ def map_pointset_loop(foldname,
     """
     is_same_minimum_list = []
     resultlist = []
-    ctol = 1e-1
+    ctol = 1e-3
     ndim = 2
     foldpath = BASE_DIRECTORY + '/' + foldname
 
@@ -177,7 +178,7 @@ def map_pointset_loop(foldname,
         except:
             print("warning no minima data found. generating")
             minima_container.minimalist = [
-                minima_container.box_reshape_coords(minimum_coords)
+                # minima_container.box_reshape_coords(minimum_coords)
             ]
     nfevlist = []
     nstepslist = []
@@ -194,11 +195,11 @@ def map_pointset_loop(foldname,
     print(np.average(nstepslist), 'number of steps')
     print(np.average(nstepslist), 'number of steps')
     print(np.average(nhevlist), "number of hessian evaluations")
+    
     print(minima_container.orderparamlist)
 
     foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME
     os.makedirs(foldpathdata, exist_ok=True)
-
     minima_container.dump_map(foldpathdata)
     # print(minima_container.initial_coords_list)
     # print(minima_container.orderparamlist)
@@ -207,7 +208,7 @@ def map_pointset_loop(foldname,
 
 
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
     nmesh = 150
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,

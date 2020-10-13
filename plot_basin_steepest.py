@@ -12,6 +12,7 @@ import colorsys
 import random
 import colorcet as cc
 from map_basin_steepest import QUENCH_FOLDER_NAME, MINIMA_DATABASE_NAME
+from accuracy_check import correct_minima_check
 np.random.seed(0)
 
 
@@ -61,14 +62,16 @@ def _get_colors(num_colors):
 if __name__ == "__main__":
 
     # load data
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
-    quench_type = "cvodeopt"
+    # quench_type = "cvodeopt"
     # quench_type = "Fire"
-    quench_type = "cvodeopt"
+    quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
+    # quench_type = 'correct_minima_heavy'
     data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
     print('loading data from')
     print(data_fold_path)
+
     data = CheckSameMinimum.load_map(data_fold_path,
                                      max_minima_l=2000,
                                      minima_database_path=minima_database_path)
@@ -80,8 +83,6 @@ if __name__ == "__main__":
     vmax = 500
     vmin = 0
     res = extract_min_max_spacing(initial_coords)
-    print(res.xspace, "xspace")
-    print(res.yspace, "yspace")
     (hs_radii, initial_coords,
      box_length) = load_secondary_params(BASE_DIRECTORY + '/' +
                                          foldnameInversePower)
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     d = lambda x: x / box_length
 
     cmap = colors.ListedColormap(cc.glasbey_bw)
-    cmap2 = 'flag'
+    cmap2 = 'tab20c'
     # cmapsmall =
     plt.imshow(op_2d,
                extent=[d(res.ymin),
@@ -103,10 +104,11 @@ if __name__ == "__main__":
     print(np.max(order_params))
     plt.xlabel('x (L)')
     plt.ylabel('y (L)')
-    plt.title(quench_type + ' (L = length of box)')
+    plt.title('CVODE high tol' + ' (L = length of box)')
     plt.savefig(BASE_DIRECTORY + '/' + foldnameInversePower + '/' +
                 quench_type + '.pdf')
     plt.show()
+    print(correct_minima_check(quench_type, foldnameInversePower), 'correct_minima_heavy')
 # if __name__ == "__main__":
 #     ncolors = 30
 #     gradient = np.linspace(0, 1, ncolors)

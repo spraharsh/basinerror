@@ -1,6 +1,7 @@
 import numpy as np
 from basinerror import quench_steepest
 from basinerror import quench_mixed_optimizer
+from basinerror import quench_cvode_opt
 from params import load_params, load_secondary_params
 from params import BASE_DIRECTORY
 from pele.potentials import HS_WCA, InversePower
@@ -56,20 +57,22 @@ def FindMinimumInversePower(foldname):
                              boxvec=boxv)
     print(box_length, "box_length")
     print(len(initial_coords))
-    initial_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
-                                delimiter=',')
+    # initial_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
+    #                             delimiter=',')
     print(initial_coords, 'initial_coords')
     # ret = steepest_descent(initial_coords, potential, dx=1e-4)
     # ret = modifiedfire_cpp(initial_coords, potential, iprint=1, tol=1e-4)
     # E, V = print(potential.getEnergyGradient(initial_coords))
     # ret = quench_mixed_optimizer(potential, initial_coords, conv_tol=1e-100)
     # ret = quench_mixed_optimizer(potential, initial_coords, conv_tol=1e-100, nsteps=3000)
-    ret = quench_steepest(
-        potential,
-        initial_coords,  # make sure right coords are being passed
-        stepsize=0.0001,
-        nsteps=1000,
-        tol=1e-7)
+    # ret = quench_steepest(
+    #     potential,
+    #     initial_coords,  # make sure right coords are being passed
+    #     stepsize=0.0001,
+    #     nsteps=1000,
+    #     tol=1e-7)
+    # ret = quench_cvode_opt(initial_coords, potential, )
+    ret = quench_cvode_opt(potential, initial_coords, tol=1e-5, rtol=1e-8, atol=1e-8)
 
     finalcoords = ret.coords
     print(ret.coords)
@@ -89,5 +92,5 @@ if __name__ == "__main__":
     #             + "radius_std=0.05use_cell_lists=0pot_sca=0.1radius_sca=0.9"
     #             + "eps=1.0rcut=2.5")
     # FindMinimumHSWCA(foldnameHSWCA)
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     FindMinimumInversePower(foldnameInversePower)
