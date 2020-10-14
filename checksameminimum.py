@@ -5,15 +5,11 @@ This has been adopted from CheckSameMinimum in basinvolume.
 
 Assumes that the particle isn't a rattler
 """
-from pickle import TRUE
 from types import SimpleNamespace
 import numpy as np
 
 from basinvolume.utils import in_hull, origin_in_hull_2d
 import logging
-
-
-
 
 class CheckSameMinimum:
     """
@@ -31,10 +27,10 @@ class CheckSameMinimum:
                  rattler_check=False,
                  potential=None,
                  hs_radii=None,
-                 sca=None):
+                 max_nrattlers=None):
         """
         
-
+        
         Parameters
         ----------
         ctol : tolerance for the quenched minimum to be part of the same basin,
@@ -51,11 +47,18 @@ class CheckSameMinimum:
         -------
         out : None
         """
-        if ((potential == None or hs_radii==None or sca==None) and rattler_check == True):
+        #  !hasattr convoluted way of figuring out what hs_radii does
+        if ((potential == None or (not hasattr(hs_radii, 'shape'))) and rattler_check == True):
             raise Exception('can\'t do rattler check without potential details')
+        self.potential = potential
+        self.hs_radii = hs_radii
+        self.rattler_check = rattler_check
         self.ctol = ctol
         self.dim = dim
         self.boxl = boxl
+        self.max_nrattlers = max_nrattlers
+        self.nfluidstates=0
+        self.nrattlermin = 0
         # list of minima as identified by the coords. if the minima database is not defined
         # it is assumed to be empty. if minima database is specified and update database
         # is true, we will update the database when we dump the map
@@ -89,15 +92,12 @@ class CheckSameMinimum:
                     part_ind=0):
         """ function that checks if the minimum corresponds to any previous
             minima in the list and adds it to the new minima
-
         Parameters
         ----------
         final_minimum : final minimum after the quench
-
         initial_coords : initial coords which are mapped to this minimum
                          only saved to define the map between a list of these
                          and the orderparamlist. can just be representative
-
         failed_quench : if the quench has failed
                         save the order parameter as (-1)
 
@@ -111,6 +111,17 @@ class CheckSameMinimum:
         # algorithms. we also impose periodic boundary conditions
 
         final_minimum = self.box_reshape_coords(final_minimum)
+        if self.rattler_check:
+            # returns rattlers in case there are any
+            # and whether state is jammed (i.e not_fluid)
+            not_fluid, rattlers = self._find_rattlers(final_minimum.flatten())
+            print(rattlers, 'rattlers')
+            if np.any(rattlers==0):
+                self.nrattlermin +=1
+            print(not_fluid)
+        else:
+            rattlers = None
+            not_fluid = False
         self.initial_coords_list.append(initial_coords)
         if failed_quench:
             # assign -1 to failed quench
@@ -120,15 +131,18 @@ class CheckSameMinimum:
             for i, minimum in enumerate(self.minimalist):
                 aligned_final_minimum = self.align_structures(
                     minimum, final_minimum, part_ind)
-
-                if self.check_same_structure(aligned_final_minimum, minimum):
+                if self.check_same_structure(aligned_final_minimum, minimum, rattlers):
                     self.orderparamlist.append(i)
                     minima_asssigned = True
                     break
             # assign new minimum if possible
             if (minima_asssigned is False):
                 if len(self.minimalist) < self.minimalist_l:
-                    self.minimalist.append(final_minimum)
+                    if not_fluid:
+                        self.minimalist.append(final_minimum)
+                    else:
+                        self.fluid += 1
+                        self.minimalist.append(-100)
                     self.orderparamlist.append(len(self.minimalist) - 1)
                 else:
                     self.orderparamlist.append(-2)
@@ -154,7 +168,7 @@ class CheckSameMinimum:
             boxed_coords = coords.copy()
         return boxed_coords.reshape(len(coords) // self.dim, self.dim)
 
-    def check_same_structure(self, aligned_minimum, correct_minimum):
+    def check_same_structure(self, aligned_minimum, correct_minimum, rattlers=None):
         """ checks whether the structure corresponding to
             the coordinates of the minima is the same
         Parameters
@@ -168,7 +182,7 @@ class CheckSameMinimum:
         # d_array[i] represents the distance between
         # the positions of the particle in the aligned minimum
         # and the correct minimum
-        d_array = np.array(list(map(np.linalg.norm, dist_vec_array)))
+        d_array = np.array(list(map(np.linalg.norm, dist_vec_array)))*rattlers
         if (np.max(d_array) < self.ctol*self.boxl):
             return True
         return False
@@ -241,15 +255,19 @@ class CheckSameMinimum:
         finish this, I need to remove the rattler and break.
         Also need to get compare to existing jammed_packing option
         :return:
-        copied johannes code from Basinvolume
+        (Jammed state or not, Rattlers)
+        copied johannes code from basinvolume
+
         """
         if self.dim < 4:
             zmin = self.dim + 1
         else:
             raise NotImplementedError
-
+        if self.max_nrattlers == None:
+            self.max_nrattlers = len(self.hs_radii)
+        self.nparticles = len(self.hs_radii)/self.dim
+        self.rattlers = np.zeros(len(self.hs_radii))
         check_again = range(len(self.hs_radii))
-        self.ss_radii = self.hs_radii * (1. + self.sca)
         neighbor_indicess, neighbor_distancess \
             = self.potential.getNeighbors(coords)
         nrattlers = 0
@@ -259,15 +277,15 @@ class CheckSameMinimum:
             check_inds = check_again
             check_again = set()
             if nrattlers > self.max_nrattlers:
-                logging.warning(self._log("Too many rattlers. Discarding packing."))
+                logging.warning("Too many rattlers. Discarding packing.")
                 return False
             for atomi in check_inds:
                 found_rattler = False
                 no_neighbors = len(neighbor_indicess[atomi])
                 if no_neighbors < zmin:
                     found_rattler = True
-                    logging.debug(self._log("Particle {} is not isostatic."
-                                            .format(atomi)))
+                    logging.debug("Particle {} is not isostatic."
+                                            .format(atomi))
                 else:
                     if self.dim == 2:
                         found_rattler = not origin_in_hull_2d(
@@ -277,11 +295,10 @@ class CheckSameMinimum:
                                   .reshape((-1, self.dim)))
                         found_rattler = not in_hull(origin, points)
                     if found_rattler:
-                        logging.debug(self._log("Particle {} is not in "
+                        logging.debug("Particle {} is not in "
                                                 "contacts' convex hull."
-                                                .format(atomi)))
-                self.rattlers[atomi] = 0 if found_rattler else 1000
-                self.rattlers_draw[atomi] = float(not found_rattler)
+                                                .format(atomi))
+                self.rattlers[atomi] = False if found_rattler else True
                 if found_rattler:
                     if atomi in check_again:
                         check_again.remove(atomi)
@@ -291,35 +308,31 @@ class CheckSameMinimum:
                         del neighbor_indicess[atomj][i_in_j]
                         del neighbor_distancess[atomj][i_in_j]
                     nrattlers += 1
-
         # test that number of contacts is sufficient for bulk modulus to be positive,
         # see eq 4 in http://journals.aps.org/prl/abstract/10.1103/PhysRevLett.109.095704
         # see eq 19 in arXiv:1406.1529
+        print(nrattlers, 'nrattlers')
         no_stable = self.nparticles - nrattlers
         total_contacts = sum([len(neighbor_indices)
                               for neighbor_indices in neighbor_indicess])
         N_min = int(2 * (self.dim * (no_stable - 1) + 1))
-        logging.debug(self._log("N_min: {} total_contacts: {}"
-                                .format(N_min, total_contacts)))
-        logging.debug(self._log("Number of rattlers: {}".format(nrattlers)))
+        logging.debug("N_min: {} total_contacts: {}"
+                      .format(N_min, total_contacts))
+        logging.debug("Number of rattlers: {}".format(nrattlers))
         if nrattlers > self.max_nrattlers:
-            logging.warning(self._log("Too many rattlers. Discarding packing."))
-            return False
+            logging.warning("Too many rattlers. Discarding packing.")
+            return (False, self.rattlers)
         if total_contacts >= N_min:
-            return True
+            return (True, self.rattlers)
         else:
-            logging.warning(self._log("Packing is not globally stable, N_min: {} "
-                                      "total_contacts: {}"
-                                      .format(N_min, total_contacts)))
-            return False
+            logging.warning("Packing is not globally stable, N_min: {} "
+                            "total_contacts: {}".format(N_min, total_contacts))
+            return (False, self.rattlers)
 
 
     @staticmethod
     def load_map(foldpath, max_minima_l, minima_database_path=None):
         """ loads data from file location
-
-        
-
         Parameters
         ----------
         foldpath: path

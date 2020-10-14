@@ -4,8 +4,11 @@ Note that our goal is to return the minimum given by the trajectory of the solut
  to d x/ d t = - \grad{E} (check the truth of this statement)
 """
 
+from matplotlib.pyplot import sca
 import numpy as np
 import os
+
+from pele.potentials.potential import potential
 from basinerror import quench_cvode_opt, quench_steepest
 from params import load_params, load_secondary_params
 from pele.potentials import InversePower
@@ -69,6 +72,7 @@ def map_binary_inversepower(quench,
     print(ret.nsteps, 'nsteps')
     # ret['nhev']=0
     results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps, ret.nhev)
+    # the reason the potential is being passed is because quench coords needs the potential to figure out what to do
     return results
 
 
@@ -158,16 +162,23 @@ def map_pointset_loop(foldname,
 
     sysparams = load_params(foldpath)
     (hs_radii, initial_coords, box_length) = load_secondary_params(foldpath)
-
     minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
                                 delimiter=',')
+
+    # Initialize CheckSameMinimum
+    potential = InversePower(sysparams.power.value,
+                             sysparams.eps.value,
+                             use_cell_lists=False,
+                             ndim=sysparams.ndim.value,
+                             radii=hs_radii * 1.0,
+                             boxvec=[box_length, box_length])
     minima_container = CheckSameMinimum(
         ctol,
         ndim,
         boxl=box_length,
         minimalist_max_len=2000,
         minima_database_location=minima_database_path,
-        update_database=True)
+        update_database=True, rattler_check=True, potential=potential, hs_radii=hs_radii)
 
     if use_minima_database == True:
         try:
@@ -187,6 +198,8 @@ def map_pointset_loop(foldname,
         res = map_binary_inversepower(quench_steepest, foldname, point,
                                       coordarg)
         minima_container.add_minimum(res[0], point, res[2])
+        print(minima_container.nrattlermin, 'nrattlermin')
+        print(minima_container.nfluidstates, 'nfluidstates')
         nfevlist.append(res[3])
         nstepslist.append(res[4])
         nhevlist.append(res[5])
