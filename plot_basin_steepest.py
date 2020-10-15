@@ -1,3 +1,4 @@
+from tokenize import Double
 from types import SimpleNamespace
 from matplotlib.pyplot import show
 from basinerror import quench_steepest
@@ -62,12 +63,12 @@ def _get_colors(num_colors):
 if __name__ == "__main__":
 
     # load data
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
     # quench_type = "cvodeopt"
     # quench_type = "Fire"
     quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
-    # quench_type = 'correct_minima_heavy'
+    # quench_type = 'correct_minima'
     data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
     print('loading data from')
     print(data_fold_path)
@@ -78,19 +79,24 @@ if __name__ == "__main__":
     initial_coords = data.initial_coords
     order_params = data.order_params
     minimalist = data.minimalist
+    
 
     # set min max values
-    vmax = 500
+    vmax = 255
     vmin = 0
     res = extract_min_max_spacing(initial_coords)
+    
+    xlen = int(np.sqrt(len(order_params)))
     (hs_radii, initial_coords,
      box_length) = load_secondary_params(BASE_DIRECTORY + '/' +
                                          foldnameInversePower)
-    op_2d = np.reshape(order_params, (res.xlen, res.ylen))
-    print(op_2d)
+    op_2d = np.reshape(order_params, (xlen, xlen))
+    print(np.max(order_params), 'order parameters')
+    # np.set_printoptions(threshold=np.inf)
     d = lambda x: x / box_length
-
-    cmap = colors.ListedColormap(cc.glasbey_bw)
+    print(op_2d)
+    cmap = colors.ListedColormap(cc.glasbey)
+    print(len(cc.glasbey_bw), 'length of glasbey')
     cmap2 = 'tab20c'
     # cmapsmall =
     plt.imshow(op_2d,
@@ -104,7 +110,7 @@ if __name__ == "__main__":
     print(np.max(order_params))
     plt.xlabel('x (L)')
     plt.ylabel('y (L)')
-    plt.title('CVODE high tol' + ' (L = length of box)')
+    plt.title(QUENCH_FOLDER_NAME + ' (L = length of box)')
     plt.savefig(BASE_DIRECTORY + '/' + foldnameInversePower + '/' +
                 quench_type + '.pdf')
     plt.show()

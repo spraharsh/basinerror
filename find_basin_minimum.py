@@ -72,7 +72,7 @@ def FindMinimumInversePower(foldname):
     #     nsteps=1000,
     #     tol=1e-7)
     # ret = quench_cvode_opt(initial_coords, potential, )
-    ret = quench_cvode_opt(potential, initial_coords, tol=1e-5, rtol=1e-8, atol=1e-8)
+    ret = quench_cvode_opt(potential, initial_coords, tol=1e-9, rtol=1e-10, atol=1e-10)
 
     finalcoords = ret.coords
     print(ret.coords)
@@ -92,5 +92,5 @@ if __name__ == "__main__":
     #             + "radius_std=0.05use_cell_lists=0pot_sca=0.1radius_sca=0.9"
     #             + "eps=1.0rcut=2.5")
     # FindMinimumHSWCA(foldnameHSWCA)
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     FindMinimumInversePower(foldnameInversePower)

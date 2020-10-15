@@ -178,12 +178,17 @@ class CheckSameMinimum:
         correct_minimum: array
             coordinates of the correct minimum
         """
-        dist_vec_array = (aligned_minimum - correct_minimum)
+        dist_vec_array = (aligned_minimum - correct_minimum) % self.boxl
+        dist_vec_array = np.where(dist_vec_array>self.boxl/2, self.boxl-dist_vec_array, dist_vec_array)
+        # if the displacements are too large flip the box
+        # (basically we want to get the absolute minimum possible)
+        # if np.any(dist_vec_array>self.boxl/2):
+        #     dist_vec_array = self.boxl-dist_vec_array
         # d_array[i] represents the distance between
         # the positions of the particle in the aligned minimum
         # and the correct minimum
         d_array = np.array(list(map(np.linalg.norm, dist_vec_array)))*rattlers
-        if (np.max(d_array) < self.ctol*self.boxl):
+        if (np.max(d_array) < self.ctol):
             return True
         return False
 
