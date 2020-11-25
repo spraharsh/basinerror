@@ -1,5 +1,6 @@
 from tokenize import Double
 from types import SimpleNamespace
+from colorcet import glasbey
 from matplotlib.pyplot import show
 from basinerror import quench_steepest
 import numpy as np
@@ -16,6 +17,8 @@ from map_basin_steepest import QUENCH_FOLDER_NAME, MINIMA_DATABASE_NAME
 from accuracy_check import correct_minima_check
 np.random.seed(0)
 
+
+glasbey2000 = colors.ListedColormap(np.loadtxt('glasbey2000.csv', delimiter=','))
 
 def extract_min_max_spacing(coordslist):
     """ Extracts spacing data from a 2d coordinate list
@@ -63,7 +66,7 @@ def _get_colors(num_colors):
 if __name__ == "__main__":
 
     # load data
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
     # quench_type = "cvodeopt"
     # quench_type = "Fire"
@@ -82,7 +85,7 @@ if __name__ == "__main__":
     
 
     # set min max values
-    vmax = 255
+    vmax = 1999
     vmin = 0
     res = extract_min_max_spacing(initial_coords)
     
@@ -91,12 +94,13 @@ if __name__ == "__main__":
      box_length) = load_secondary_params(BASE_DIRECTORY + '/' +
                                          foldnameInversePower)
     op_2d = np.reshape(order_params, (xlen, xlen))
-    print(np.max(order_params), 'order parameters')
+    # print(np.max(order_params), 'order parameters')
     # np.set_printoptions(threshold=np.inf)
     d = lambda x: x / box_length
     print(op_2d)
-    cmap = colors.ListedColormap(cc.glasbey)
-    print(len(cc.glasbey_bw), 'length of glasbey')
+    cmap = colors.ListedColormap(cc.glasbey_bw_minc_20_maxl_70)
+    cmap = glasbey2000
+    # print(len(cc.glasbey_bw), 'length of glasbey')
     cmap2 = 'tab20c'
     # cmapsmall =
     plt.imshow(op_2d,

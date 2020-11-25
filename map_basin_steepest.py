@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from pele.optimize._quench import modifiedfire_cpp, lbfgs_cpp
 from basinerror import quench_mixed_optimizer
 from checksameminimum import CheckSameMinimum
-QUENCH_FOLDER_NAME = 'LBFGSM4'
+QUENCH_FOLDER_NAME = 'fire2'
 MINIMA_DATABASE_NAME = 'minima_database.npy'
 
 
@@ -57,17 +57,17 @@ def map_binary_inversepower(quench,
     #                              T=10,
     #                              step=1,
     #                              nsteps=100000,
-    #                              conv_tol=-1,
-    #                              tol=1e-8, rtol=1e-4, atol=1e-4)
+    #                              conv_tol=1e-8,
+    #                              tol=1e-6, rtol=1e-4, atol=1e-4)
     # ret = quench_steepest(
     #     potential,
     #     quench_coords,  # make sure right coords are being passed
     #     nsteps=2000000,
     #     stepsize=5e-3,  # for steepest descent step size should be small
     #     tol=1e-4)
-    # ret = quench_cvode_opt(potential, quench_coords, tol=1e-8, rtol=1e-5, atol=1e-5)
-    # ret = modifiedfire_cpp(quench_coords, potential, tol=1e-8)
-    ret = lbfgs_cpp(quench_coords, potential, tol=1e-8, M=1)
+    # ret = quench_cvode_opt(potential, quench_coords, tol=1e-6, rtol=1e-4, atol=1e-4)
+    ret = modifiedfire_cpp(quench_coords, potential, tol=1e-6)
+    # ret = lbfgs_cpp(quench_coords, potential, tol=1e-8, M=1)
     print(ret.nfev, 'nfev')
     ret['nhev']=0
     print(ret.nsteps, 'nsteps')
@@ -156,7 +156,7 @@ def map_pointset_loop(foldname,
     """
     is_same_minimum_list = []
     resultlist = []
-    ctol = 1e-4
+    ctol = 1e-2
     ndim = 2
     foldpath = BASE_DIRECTORY + '/' + foldname
 
@@ -221,9 +221,9 @@ def map_pointset_loop(foldname,
 
 
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
-    nmesh = 40
+    nmesh = 150
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T

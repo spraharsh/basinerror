@@ -58,8 +58,8 @@ class SystemParamInversePowerBinary(Enum):
         As done for inverse powe
     """
     # general parameters
-    ndim = 2
-    phi = 0.9
+    ndim = 3
+    phi = 0.7
     # The seed should ideally determine every randomly generated
     # extra parameters
     seed = 0
@@ -72,7 +72,7 @@ class SystemParamInversePowerBinary(Enum):
     rstd2 = 0.05 * 1.4
 
     # potential parameters
-    use_cell_lists = False
+    use_cell_lists = True
     power = 2.5  # hertz power
     eps = 1
 
@@ -122,17 +122,19 @@ def generate_save_secondary_params(par, folder):
     #             + par.radius_mean.value)
 
     # for binary mixture
-    #
     npart_by_2 = par.n_part.value // 2
     hs_radii = np.array(
         list(par.r1.value + par.rstd1.value * np.random.randn(npart_by_2)) +
         list(par.r2.value +
              par.rstd2.value * np.random.randn(par.n_part.value - npart_by_2)))
-    print(hs_radii)
-    print(len(hs_radii))
+    print(hs_radii, 'hs_radii')
+    print(len(hs_radii), 'nparts')
     box_length = get_box_length(hs_radii, par.ndim.value, par.phi.value)
+    print(box_length, 'box_length')
     initial_coords = np.random.rand(
         par.n_part.value * par.ndim.value) * box_length
+    print(initial_coords, 'initial coords')
+    print(get_ncellsx_scale(hs_radii, [box_length, box_length, box_length]), 'cell scale')
     print(len(initial_coords), "initial_coords length")
     np.savetxt(folder + '/hs_radii.txt', hs_radii, delimiter=',')
     np.savetxt(folder + '/initial_coords.txt', initial_coords, delimiter=',')
