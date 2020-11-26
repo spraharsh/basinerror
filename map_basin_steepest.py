@@ -21,6 +21,7 @@ from checksameminimum import CheckSameMinimum
 # run data
 import optimizer_parameters as op
 import write_run_data_to_file
+from write_run_data_to_file import write_run_data_to_file
 
 
 QUENCH_FOLDER_NAME = 'fire2'
@@ -29,15 +30,6 @@ MINIMA_DATABASE_NAME = 'minima_database.npy'
 # things we need to define a run: foldername
 # parameter dictionary
 # name of the run
-
-
-
-
-
-
-
-
-
 
 
 def map_binary_inversepower(quench,
@@ -85,9 +77,16 @@ def map_binary_inversepower(quench,
     #     tol=1e-4)
     # ret = quench_cvode_opt(potential, quench_coords, tol=1e-6, rtol=1e-4, atol=1e-4)
     ret = optimizer(quench_coords, potential, **parameter_dict)
+    
+    
     # ret = lbfgs_cpp(quench_coords, potential, tol=1e-8, M=1)
-    print(ret.nfev, 'nfev')
-    ret['nhev']=0
+
+    # This exists because some runs don't have hessian evaluations
+    try:
+        ret['nhev']
+    except:
+        ret['nhev']=0
+
     print(ret.nsteps, 'nsteps')
     results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps, ret.nhev)
     # the reason the potential is being passed is because quench coords needs the potential to figure out what to do
@@ -170,14 +169,14 @@ def map_pointset_loop(foldname,
                       coordarg,
                       optimizer,
                       parameter_dict,
+                      ctol=1e-2,
+                      ndim=2,
                       use_minima_database=True,
                       minima_database_path=None):
     """ Checks a bunch of points if they match to a minimum by using a for loop
     """
     is_same_minimum_list = []
     resultlist = []
-    ctol = 1e-2
-    ndim = 2
     foldpath = BASE_DIRECTORY + '/' + foldname
 
     sysparams = load_params(foldpath)
@@ -234,10 +233,17 @@ def map_pointset_loop(foldname,
     foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME
     os.makedirs(foldpathdata, exist_ok=True)
     minima_container.dump_map(foldpathdata)
+
+    run_diagnostics = {}
+    run_diagnostics['nfev'] = float(np.average(nfevlist))
+    run_diagnostics['nhev'] = float(np.average(nhevlist))
+    run_diagnostics['nsteps'] = float(np.average(nstepslist))
+    
+    
     # print(minima_container.initial_coords_list)
     # print(minima_container.orderparamlist)
     # print(minima_container.orderparamlist)
-    return is_same_minimum_list, resultlist
+    return run_diagnostics, is_same_minimum_list, resultlist
 
 
 
@@ -245,16 +251,22 @@ def map_pointset_loop(foldname,
 
 if __name__ == "__main__":
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    ndim = int()
     coordarg = 0
     nmesh = 10
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T
-    minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
 
 
-    # dictionary of parameters
+    # folders
+    data_location = BASE_DIRECTORY + '/' + foldnameInversePower
+    minima_database_path = data_location + '/' + MINIMA_DATABASE_NAME
+
+    
+    # defining parameter for run
     optimizer = modifiedfire_cpp
+    identification_tolerance = 1e-2
     parameter_dict = op.RUN_PARAMETERS_MODIFIED_FIRE
     res = map_pointset_loop(foldnameInversePower,
                             pointset,
@@ -262,9 +274,10 @@ if __name__ == "__main__":
                             coordarg,
                             optimizer,
                             parameter_dict,
+                            ctol=identification_tolerance,
+                            ndim=2,
                             use_minima_database=True,
                             minima_database_path=minima_database_path)
-
     # print(res)
     # # boollist = np.loadtxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_fire.txt')
     # np.savetxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_mxopt.txt', boollist)
@@ -274,3 +287,14 @@ if __name__ == "__main__":
     # plt.imshow(boollistreshaped)
     # plt.show()
     # # print(reslist)
+
+    # save all parameters from run
+    run_diagnostics = res[0]
+    run_diagnostics['identification tolerance'] = identification_tolerance
+    run_diagnostics['mesh size'] = identification_tolerance
+
+
+    # write run data to two different locations
+    write_run_data_to_file(parameter_dict, run_diagnostics, folder_location=data_location)
+    write_run_data_to_file(parameter_dict, run_diagnostics, folder_location='/home/praharsh/Dropbox/research/bv-libraries/basinerror/run_diagnostic_data')
+    

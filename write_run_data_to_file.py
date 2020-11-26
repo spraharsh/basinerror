@@ -10,7 +10,7 @@ import os
 
 
 
-def write_evaluations_to_file(optimizer_parameters, run_diagnostics, folder_location, name='run_parameters.yaml'):
+def write_run_data_to_file(optimizer_parameters, run_diagnostics, folder_location, name='run_parameters.yaml'):
     """
     Merges the optimizer paraters and run diagnostics and writes to a single file
 
@@ -35,6 +35,7 @@ def write_evaluations_to_file(optimizer_parameters, run_diagnostics, folder_loca
 
     print(optimizer_parameters)
     full_data = optimizer_parameters
+    print(full_data)
 
     filename = uniquify(folder_location + '/' + name)
     
@@ -68,6 +69,5 @@ if __name__ == "__main__":
     optimizer_parameters = {'c': 4, 'a': 10, 'b': 8, 'd': 6}
     run_diagnostics = {'nfev':0, 'nhev':0, 'nsev':0}
     location = os.getcwd()
-    
-    write_evaluations_to_file(optimizer_parameters, run_diagnostics, location, name='write_test.yaml')
+    write_run_data_to_file(optimizer_parameters, run_diagnostics, location, name='write_test.yaml')
     

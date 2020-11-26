@@ -5,7 +5,7 @@ map_basin_steepest.py
 """
 
 RUN_PARAMETERS_MODIFIED_FIRE = {
-    "tol": 1e-3,
+    "tol": 1e-6,
     "dtstart": 0.1,
     "dtmax": 1,
     "maxstep": 0.5,
