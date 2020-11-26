@@ -1,7 +1,6 @@
 """
 Maps the basin using the steepest descent algorithm. The accuracy of the mapping depends on the step size.
-Note that our goal is to return the minimum given by the trajectory of the solution
- to d x/ d t = - \grad{E} (check the truth of this statement)
+Note that our goal is to return the minimum given by the trajectory of the solution to d x/ d t = - \grad{E} (check the truth of this statement)
 """
 
 from matplotlib.pyplot import sca
@@ -9,23 +8,42 @@ import numpy as np
 import os
 
 from pele.potentials.potential import potential
-from basinerror import quench_cvode_opt, quench_steepest
+from quenches import quench_cvode_opt, quench_steepest
 from params import load_params, load_secondary_params
 from pele.potentials import InversePower
 from params import BASE_DIRECTORY
 import matplotlib.pyplot as plt
 from pele.optimize._quench import modifiedfire_cpp, lbfgs_cpp
-from basinerror import quench_mixed_optimizer
+from quenches import quench_mixed_optimizer
 from checksameminimum import CheckSameMinimum
+
+
+# run data
+import optimizer_parameters as op
+import write_run_data_to_file
+
+
 QUENCH_FOLDER_NAME = 'fire2'
 MINIMA_DATABASE_NAME = 'minima_database.npy'
+
+# things we need to define a run: foldername
+# parameter dictionary
+# name of the run
+
+
+
+
+
+
+
+
+
 
 
 def map_binary_inversepower(quench,
                             foldername,
                             particle_coords,
-                            coordarg,
-                            tol=0.1):
+                            coordarg, optimizer, parameter_dict):
     """
     Finds whether a point defined by particle_coord
     on the meshgrid correspond to a minimum or not for a 2d
@@ -66,7 +84,7 @@ def map_binary_inversepower(quench,
     #     stepsize=5e-3,  # for steepest descent step size should be small
     #     tol=1e-4)
     # ret = quench_cvode_opt(potential, quench_coords, tol=1e-6, rtol=1e-4, atol=1e-4)
-    ret = modifiedfire_cpp(quench_coords, potential, tol=1e-6)
+    ret = optimizer(quench_coords, potential, **parameter_dict)
     # ret = lbfgs_cpp(quench_coords, potential, tol=1e-8, M=1)
     print(ret.nfev, 'nfev')
     ret['nhev']=0
@@ -150,6 +168,8 @@ def map_pointset_loop(foldname,
                       pointset,
                       quench,
                       coordarg,
+                      optimizer,
+                      parameter_dict,
                       use_minima_database=True,
                       minima_database_path=None):
     """ Checks a bunch of points if they match to a minimum by using a for loop
@@ -196,7 +216,7 @@ def map_pointset_loop(foldname,
     nhevlist = []
     for point in pointset:
         res = map_binary_inversepower(quench_steepest, foldname, point,
-                                      coordarg)
+                                      coordarg, optimizer, parameter_dict)
         minima_container.add_minimum(res[0], point, res[2])
         print(minima_container.nrattlermin, 'nrattlermin')
         print(minima_container.nfluidstates, 'nfluidstates')
@@ -220,20 +240,31 @@ def map_pointset_loop(foldname,
     return is_same_minimum_list, resultlist
 
 
+
+
+
 if __name__ == "__main__":
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
-    nmesh = 150
+    nmesh = 10
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
+
+
+    # dictionary of parameters
+    optimizer = modifiedfire_cpp
+    parameter_dict = op.RUN_PARAMETERS_MODIFIED_FIRE
     res = map_pointset_loop(foldnameInversePower,
                             pointset,
                             quench_mixed_optimizer,
                             coordarg,
+                            optimizer,
+                            parameter_dict,
                             use_minima_database=True,
                             minima_database_path=minima_database_path)
+
     # print(res)
     # # boollist = np.loadtxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_fire.txt')
     # np.savetxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_mxopt.txt', boollist)

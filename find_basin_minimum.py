@@ -1,7 +1,7 @@
 import numpy as np
-from basinerror import quench_steepest
-from basinerror import quench_mixed_optimizer
-from basinerror import quench_cvode_opt
+from quenches import quench_steepest
+from quenches import quench_mixed_optimizer
+from quenches import quench_cvode_opt
 from params import load_params, load_secondary_params
 from params import BASE_DIRECTORY
 from pele.potentials import HS_WCA, InversePower

@@ -6,7 +6,8 @@ Simulates a 2/3d system of particles in a periodic chooses a single
  done for the $LJ$ cut potential.
 """
 from pele.potentials import HS_WCA
-from pele.optimize import MixedOptimizer, GradientDescent_CPP, LBFGS_CPP # , CVODEBDFOptimizer
+# , CVODEBDFOptimizer
+from pele.optimize import MixedOptimizer, GradientDescent_CPP, LBFGS_CPP
 from pele.utils.cell_scale import get_ncellsx_scale
 from pele.utils.cell_scale import get_box_length
 from pele.distance import Distance
@@ -16,23 +17,22 @@ np.random.seed(0)  # check how to use seed sequences later on
 QUENCH_FOLDER_NAME = 'cvdoeopt'
 
 
-
-
 def quench_mixed_optimizer(pot,
-                           x0, nsteps = 2000, **kwargs):
-    """ "Subroutine" for quenching mixed optimizer, add subtract yada yada
+                           x0, nsteps=2000, **kwargs):
+    """ 
+        \"Subroutine\" for quenching mixed optimizer, add subtract yada yada
         to control how information gets returned, basically simply passing
         pot, x0 with these default parameters should give identical results
         between different pieces.
     """
-    mx_opt = MixedOptimizer(pot, x0, nstep=nsteps, **kwargs)
+    mx_opt = MixedOptimizer(pot, x0, **kwargs)
     mx_opt.run(nsteps)
     res = mx_opt.get_result()
     return res
 
 
 def quench_LBFGS(pot, x0, nsteps=2000, **kwargs):
-    """ "Subroutine" for quenching LBFGS, add subtract yada yada
+    """ \"Subroutine\" for quenching LBFGS, add subtract yada yada
         to control how information gets returned, basically simply passing
         pot, x0 with these default parameters should give identical results
         between different pieces.
@@ -55,20 +55,16 @@ def quench_steepest(pot, x0, tol=1e-4, nsteps=10000, stepsize=1e-4):
     return res
 
 
-
-
-def quench_cvode_opt(pot, x0, tol=1e-4, nsteps=10000, atol=1e-7, rtol=1e-7):
+def quench_cvode_opt(pot, x0, nsteps=10000, **kwargs):
     """ "Subroutine" for quenching steepest descent, add subtract yada yada
         to control how information gets returned, basically simply passing
         pot, x0 with these default parameters should give identical results
         between different pieces.
     """
-    cvode = CVODEBDFOptimizer(pot, x0, tol=tol, atol=atol, rtol=rtol)
+    cvode = CVODEBDFOptimizer(pot, x0, **kwargs)
     cvode.run(nsteps)
     res = cvode.get_result()
     return res
-
-
 
 
 if __name__ == "__main__":
