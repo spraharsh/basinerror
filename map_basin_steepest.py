@@ -7,6 +7,7 @@ from matplotlib.pyplot import sca
 import numpy as np
 import os
 
+
 from pele.potentials.potential import potential
 from quenches import quench_cvode_opt, quench_steepest
 from params import load_params, load_secondary_params
@@ -30,6 +31,7 @@ MINIMA_DATABASE_NAME = 'minima_database.npy'
 # things we need to define a run: foldername
 # parameter dictionary
 # name of the run
+
 
 
 def map_binary_inversepower(quench,
@@ -268,12 +270,18 @@ if __name__ == "__main__":
     optimizer = modifiedfire_cpp
     identification_tolerance = 1e-2
     parameter_dict = op.RUN_PARAMETERS_MODIFIED_FIRE
+    optimizer_parameters = parameter_dict.copy()
+    # important to remove name
+    optimizer_parameters.pop('name', None)
+
+
+    # run over the map
     res = map_pointset_loop(foldnameInversePower,
                             pointset,
                             quench_mixed_optimizer,
                             coordarg,
                             optimizer,
-                            parameter_dict,
+                            optimizer_parameters,
                             ctol=identification_tolerance,
                             ndim=2,
                             use_minima_database=True,
@@ -293,8 +301,10 @@ if __name__ == "__main__":
     run_diagnostics['identification tolerance'] = identification_tolerance
     run_diagnostics['mesh size'] = identification_tolerance
 
-
+    opt_name = parameter_dict['name'].replace(" ", "_")
     # write run data to two different locations
-    write_run_data_to_file(parameter_dict, run_diagnostics, folder_location=data_location)
-    write_run_data_to_file(parameter_dict, run_diagnostics, folder_location='/home/praharsh/Dropbox/research/bv-libraries/basinerror/run_diagnostic_data')
+    write_run_data_to_file(parameter_dict, run_diagnostics, folder_location=data_location, name=opt_name + '.yaml')
+    write_run_data_to_file(parameter_dict, run_diagnostics,
+                           folder_location='/home/praharsh/Dropbox/research/bv-libraries/basinerror/run_diagnostic_data',
+                           name = opt_name + '.yaml')
     

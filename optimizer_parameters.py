@@ -5,6 +5,7 @@ map_basin_steepest.py
 """
 
 RUN_PARAMETERS_MODIFIED_FIRE = {
+    "name": "modified fire",
     "tol": 1e-6,
     "dtstart": 0.1,
     "dtmax": 1,
@@ -17,6 +18,7 @@ RUN_PARAMETERS_MODIFIED_FIRE = {
 }
 
 RUN_PARAMETERS_CVODE = {
+    "name": "CVODE",
     "tol": 1e-4,                   # tolerance with which minimum is identified
     "rtol": 1e-7,                # relative local tolerance of path
     "atol": 1e-7                 # relative absolute tolerance of path
@@ -26,6 +28,7 @@ RUN_PARAMETERS_CVODE = {
 # These parameters are for lower tolerance runs
 # for figuring out exact basins
 RUN_PARAMETERS_CVODE_EXACT = {
+    "name": "CVODE exact",
     "tol": 1e-4,                   # tolerance with which minimum is identified
     "rtol": 1e-7,                # relative local tolerance of path
     "atol": 1e-7                 # relative absolute tolerance of path
@@ -33,13 +36,14 @@ RUN_PARAMETERS_CVODE_EXACT = {
 
 # run parameter at one order lower tolerance to figure out
 RUN_PARAMETERS_CVODE_EXACT_LOWER = RUN_PARAMETERS_CVODE_EXACT.copy()
-
+RUN_PARAMETERS_CVODE_EXACT_LOWER['name'] = 'CVODE exact lower tolerance'
 RUN_PARAMETERS_CVODE_EXACT_LOWER['rtol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER['rtol'] * 1e-1
 RUN_PARAMETERS_CVODE_EXACT_LOWER['atol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER['atol'] * 1e-1
 
 
 RUN_PARAMETERS_MIXED_OPTIMIZER = {
     # parameters CVODE
+    "name": "mixed optimizer",
     "tol": 1e-5,   # tolerance with which minimum is identified
     "rtol": 1e-3,   # relative local tolerance of path
     "atol": 1e-3,   # relative absolute tolerance of path
@@ -62,6 +66,7 @@ RUN_PARAMETERS_MIXED_OPTIMIZER = {
 # chosen for generating more accurate basins
 # of attraction fast in https://pubs.acs.org/doi/10.1021/jp312457a
 RUN_PARAMETERS_LBFGS = {
+    "name": "LBFGS",
     "tol": 1e-5,            # tolerance with which minimum is identified
     "M": 4,                    # size of stored memory
     # maximum size of step note that the step is made smaller

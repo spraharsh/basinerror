@@ -32,14 +32,12 @@ def write_run_data_to_file(optimizer_parameters, run_diagnostics, folder_locatio
     
 
     optimizer_parameters.update(run_diagnostics)
-
-    print(optimizer_parameters)
     full_data = optimizer_parameters
     print(full_data)
 
     filename = uniquify(folder_location + '/' + name)
     
-    with open(folder_location + '/' + name, 'w') as outfile:
+    with open(filename, 'w') as outfile:
         yaml.dump(full_data, outfile)
 
 def uniquify(path, sep = ''):
