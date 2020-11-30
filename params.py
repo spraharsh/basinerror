@@ -113,6 +113,7 @@ def load_params(folder):
 
 def generate_save_secondary_params(par, folder):
     """ 
+    TODO: rename to reflect this is for a binary system
     Generates a list of secondary parameters hs_radii,
     boxlength and scale and initial coords and saves them to the folder
     """

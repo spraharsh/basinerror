@@ -68,4 +68,3 @@ if __name__ == "__main__":
     run_diagnostics = {'nfev':0, 'nhev':0, 'nsev':0}
     location = os.getcwd()
     write_run_data_to_file(optimizer_parameters, run_diagnostics, location, name='write_test.yaml')
-    

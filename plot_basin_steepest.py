@@ -14,11 +14,11 @@ import colorsys
 import random
 import colorcet as cc
 from map_basin_steepest import QUENCH_FOLDER_NAME, MINIMA_DATABASE_NAME
-from accuracy_check import correct_minima_check
+from accuracy_check import correct_minima_check, percentage_same
 np.random.seed(0)
 
-
-glasbey2000 = colors.ListedColormap(np.loadtxt('glasbey2000.csv', delimiter=','))
+GLASBEY_2000_LENGTH = len(np.loadtxt('glasbey2000.csv', delimiter=','))
+glasbey2000 = np.loadtxt('glasbey2000.csv', delimiter=',')
 
 def extract_min_max_spacing(coordslist):
     """ Extracts spacing data from a 2d coordinate list
@@ -68,8 +68,21 @@ if __name__ == "__main__":
     # load data
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
-    # quench_type = "cvodeopt"
-    # quench_type = "Fire"
+    # quench_type = "cvode_high_tol_final"
+    # quench_type = "fire_final"
+    # quench_type = "fire_final"
+    # quench_type = "lbfgs_m4_final"
+    # quench_type = "lbfgs_m1_final"
+    # quench_type = "CG_descent_final"
+    # quench_type = 'cvode_exact'
+    # quench_type = 'cvode_exact_lower'
+
+
+    # quench_type = 'mxopt_cv_1e-2_final'
+    # the below run for n=32 is actuallt cv = 1e-8
+    # quench_type = 'mxopt_cv_0_final'
+
+
     quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
     # quench_type = 'correct_minima'
     data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
@@ -85,7 +98,8 @@ if __name__ == "__main__":
     
 
     # set min max values
-    vmax = 1999
+    vmax = GLASBEY_2000_LENGTH
+    print(GLASBEY_2000_LENGTH, 'glasbey length')
     vmin = 0
     res = extract_min_max_spacing(initial_coords)
     
@@ -97,9 +111,16 @@ if __name__ == "__main__":
     # print(np.max(order_params), 'order parameters')
     # np.set_printoptions(threshold=np.inf)
     d = lambda x: x / box_length
-    print(op_2d)
-    cmap = colors.ListedColormap(cc.glasbey_bw_minc_20_maxl_70)
-    cmap = glasbey2000
+    print(op_2d[0:10, 0:10])
+    
+    cmaplist = glasbey2000
+    cmap = colors.ListedColormap(cmaplist)
+    # note that the -1 is important otherwise it is not unique
+    vmax = len(cmaplist)-1
+    print(vmax, "vmax")
+    print(vmax, 'glasbey length')
+    vmin = 0
+    # cmap = glasbey2000
     # print(len(cc.glasbey_bw), 'length of glasbey')
     cmap2 = 'tab20c'
     # cmapsmall =
@@ -114,11 +135,13 @@ if __name__ == "__main__":
     print(np.max(order_params))
     plt.xlabel('x (L)')
     plt.ylabel('y (L)')
-    plt.title(QUENCH_FOLDER_NAME + ' (L = length of box)')
+    plt.title(quench_type + ' (L = length of box)')
     plt.savefig(BASE_DIRECTORY + '/' + foldnameInversePower + '/' +
                 quench_type + '.pdf')
     plt.show()
-    print(correct_minima_check(quench_type, foldnameInversePower), 'correct_minima_heavy')
+
+    print(correct_minima_check(quench_type, foldnameInversePower), 'cvode_exact_lower')
+    # print(percentage_same('cvode_exact', 'cvode_exact_lower', foldnameInversePower))
 # if __name__ == "__main__":
 #     ncolors = 30
 #     gradient = np.linspace(0, 1, ncolors)

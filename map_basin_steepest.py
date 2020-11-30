@@ -9,7 +9,7 @@ import os
 
 
 from pele.potentials.potential import potential
-from quenches import quench_cvode_opt, quench_steepest
+from quenches import quench_cvode_opt, quench_pycg_descent, quench_steepest
 from params import load_params, load_secondary_params
 from pele.potentials import InversePower
 from params import BASE_DIRECTORY
@@ -18,14 +18,28 @@ from pele.optimize._quench import modifiedfire_cpp, lbfgs_cpp
 from quenches import quench_mixed_optimizer
 from checksameminimum import CheckSameMinimum
 
-
-# run data
+# run data these parameter are stored separately so that they can be compared easily
+# we don't want to delete any of these.
 import optimizer_parameters as op
+import optimizer_parameters_16 as op16
+import optimizer_parameters_32 as op32
+
+
 import write_run_data_to_file
 from write_run_data_to_file import write_run_data_to_file
 
 
-QUENCH_FOLDER_NAME = 'fire2'
+QUENCH_FOLDER_NAME = 'mxopt_cv_0_final'
+
+# QUENCH_FOLDER_NAME = "cvode_high_tol_final"
+# QUENCH_FOLDER_NAME = "fire_final"
+
+# QUENCH_FOLDER_NAME = "lbfgs_m4_final"
+
+# QUENCH_FOLDER_NAME = "lbfgs_m1_final"
+# QUENCH_FOLDER_NAME = "CG_descent_final"
+# QUENCH_FOLDER_NAME = 'cvode_exact'
+# QUENCH_FOLDER_NAME = 'cvode_exact_lower'
 MINIMA_DATABASE_NAME = 'minima_database.npy'
 
 # things we need to define a run: foldername
@@ -34,8 +48,7 @@ MINIMA_DATABASE_NAME = 'minima_database.npy'
 
 
 
-def map_binary_inversepower(quench,
-                            foldername,
+def map_binary_inversepower(foldername,
                             particle_coords,
                             coordarg, optimizer, parameter_dict):
     """
@@ -78,7 +91,11 @@ def map_binary_inversepower(quench,
     #     stepsize=5e-3,  # for steepest descent step size should be small
     #     tol=1e-4)
     # ret = quench_cvode_opt(potential, quench_coords, tol=1e-6, rtol=1e-4, atol=1e-4)
-    ret = optimizer(quench_coords, potential, **parameter_dict)
+    try:
+        ret = optimizer(quench_coords, potential, **parameter_dict)
+    except:
+        return (quench_coords, False, 0, 0, 0, 0)
+    
     
     
     # ret = lbfgs_cpp(quench_coords, potential, tol=1e-8, M=1)
@@ -167,7 +184,6 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, coordarg):
 
 def map_pointset_loop(foldname,
                       pointset,
-                      quench,
                       coordarg,
                       optimizer,
                       parameter_dict,
@@ -216,7 +232,7 @@ def map_pointset_loop(foldname,
     nstepslist = []
     nhevlist = []
     for point in pointset:
-        res = map_binary_inversepower(quench_steepest, foldname, point,
+        res = map_binary_inversepower(foldname, point,
                                       coordarg, optimizer, parameter_dict)
         minima_container.add_minimum(res[0], point, res[2])
         print(minima_container.nrattlermin, 'nrattlermin')
@@ -252,10 +268,10 @@ def map_pointset_loop(foldname,
 
 
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
-    ndim = int()
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
-    nmesh = 10
+    # set nmesh =1
+    nmesh = 150
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T
@@ -264,21 +280,18 @@ if __name__ == "__main__":
     # folders
     data_location = BASE_DIRECTORY + '/' + foldnameInversePower
     minima_database_path = data_location + '/' + MINIMA_DATABASE_NAME
-
+    
     
     # defining parameter for run
-    optimizer = modifiedfire_cpp
+    optimizer = quench_mixed_optimizer
     identification_tolerance = 1e-2
-    parameter_dict = op.RUN_PARAMETERS_MODIFIED_FIRE
+    parameter_dict = op.RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_8
     optimizer_parameters = parameter_dict.copy()
     # important to remove name
     optimizer_parameters.pop('name', None)
-
-
     # run over the map
     res = map_pointset_loop(foldnameInversePower,
                             pointset,
-                            quench_mixed_optimizer,
                             coordarg,
                             optimizer,
                             optimizer_parameters,
@@ -286,6 +299,7 @@ if __name__ == "__main__":
                             ndim=2,
                             use_minima_database=True,
                             minima_database_path=minima_database_path)
+
     # print(res)
     # # boollist = np.loadtxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_fire.txt')
     # np.savetxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_mxopt.txt', boollist)
@@ -296,10 +310,19 @@ if __name__ == "__main__":
     # plt.show()
     # # print(reslist)
 
+
+    sysparams = load_params(data_location)
+
     # save all parameters from run
     run_diagnostics = res[0]
     run_diagnostics['identification tolerance'] = identification_tolerance
-    run_diagnostics['mesh size'] = identification_tolerance
+    run_diagnostics['nmesh'] = nmesh
+    run_diagnostics['particle changed'] = coordarg
+    run_diagnostics['ndim'] = sysparams.ndim.value
+    run_diagnostics['nparticles'] = sysparams.n_part.value
+    run_diagnostics['run data location'] = data_location + '/' + QUENCH_FOLDER_NAME
+
+    
 
     opt_name = parameter_dict['name'].replace(" ", "_")
     # write run data to two different locations
@@ -307,4 +330,3 @@ if __name__ == "__main__":
     write_run_data_to_file(parameter_dict, run_diagnostics,
                            folder_location='/home/praharsh/Dropbox/research/bv-libraries/basinerror/run_diagnostic_data',
                            name = opt_name + '.yaml')
-    
