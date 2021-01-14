@@ -23,13 +23,15 @@ from checksameminimum import CheckSameMinimum
 import optimizer_parameters as op
 import optimizer_parameters_16 as op16
 import optimizer_parameters_32 as op32
+from pele.utils.cell_scale import get_ncellsx_scale
+
 
 
 import write_run_data_to_file
 from write_run_data_to_file import write_run_data_to_file
 
 
-QUENCH_FOLDER_NAME = 'mxopt_cv_0_final'
+QUENCH_FOLDER_NAME = 'cvode_petsc_first_run_matrix_free'
 
 # QUENCH_FOLDER_NAME = "cvode_high_tol_final"
 # QUENCH_FOLDER_NAME = "fire_final"
@@ -45,8 +47,6 @@ MINIMA_DATABASE_NAME = 'minima_database.npy'
 # things we need to define a run: foldername
 # parameter dictionary
 # name of the run
-
-
 
 def map_binary_inversepower(foldername,
                             particle_coords,
@@ -71,12 +71,14 @@ def map_binary_inversepower(foldername,
     # box length
     box_length = float(box_length)
     boxv = [box_length] * sysparams.ndim.value
+    ncellx_scale = get_ncellsx_scale(hs_radii, boxv)
     potential = InversePower(sysparams.power.value,
                              sysparams.eps.value,
-                             use_cell_lists=False,
+                             use_cell_lists=True,
                              ndim=sysparams.ndim.value,
                              radii=hs_radii * 1.0,
                              boxvec=boxv)
+    
     # ret = quench_mixed_optimizer(potential,
     #                              quench_coords,  # make sure right coords are being passed
     #                              T=10,
@@ -94,7 +96,11 @@ def map_binary_inversepower(foldername,
     try:
         ret = optimizer(quench_coords, potential, **parameter_dict)
     except:
-        return (quench_coords, False, 0, 0, 0, 0)
+        print(quench_coords, 'failed here')
+        print(initial_coords, 'coords')
+        print(len(quench_coords))
+        raise Exception('failure')
+    
     
     
     
@@ -105,8 +111,6 @@ def map_binary_inversepower(foldername,
         ret['nhev']
     except:
         ret['nhev']=0
-
-    print(ret.nsteps, 'nsteps')
     results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps, ret.nhev)
     # the reason the potential is being passed is because quench coords needs the potential to figure out what to do
     return results
@@ -140,9 +144,6 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, coordarg):
     # sets the length of the x and y range over which
     # the mesh is calculated
     xylength = boxlscale * box_length
-    print(xylength)
-    print(minimum_coords, 'minimum')
-    print(minimum_coords[coordarg])
 
     #  This division in cases is because linspace doesn't
     #  give the right answer for n = 1
@@ -168,18 +169,14 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, coordarg):
                x_range,
                delimiter=',')
 
-    print(x_range, 'x_range')
-    print(y_range, 'y_range')
 
     pointset = []
 
     for x in x_range:
         for y in y_range:
             pointset.append((x % box_length, y % box_length))
-    print(np.max(x_range % box_length))
-    print(np.max(y_range % box_length))
-    print(box_length)
     return pointset
+
 
 
 def map_pointset_loop(foldname,
@@ -231,22 +228,23 @@ def map_pointset_loop(foldname,
     nfevlist = []
     nstepslist = []
     nhevlist = []
-    for point in pointset:
+    for index, point in enumerate(pointset):
         res = map_binary_inversepower(foldname, point,
                                       coordarg, optimizer, parameter_dict)
         minima_container.add_minimum(res[0], point, res[2])
-        print(minima_container.nrattlermin, 'nrattlermin')
-        print(minima_container.nfluidstates, 'nfluidstates')
+        # print(index)
+        # print(minima_container.nrattlermin, 'nrattlermin')
+        # print(minima_container.nfluidstates, 'nfluidstates')
         nfevlist.append(res[3])
         nstepslist.append(res[4])
         nhevlist.append(res[5])
 
-    print(np.average(nfevlist), 'number of function evaluations')
-    print(np.average(nstepslist), 'number of steps')
-    print(np.average(nstepslist), 'number of steps')
-    print(np.average(nhevlist), "number of hessian evaluations")
+    # print(np.average(nfevlist), 'number of function evaluations')
+    # print(np.average(nstepslist), 'number of steps')
+    # print(np.average(nstepslist), 'number of steps')
+    # print(np.average(nhevlist), "number of hessian evaluations")
     
-    print(minima_container.orderparamlist)
+    # print(minima_container.orderparamlist)
 
     foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME
     os.makedirs(foldpathdata, exist_ok=True)
@@ -268,10 +266,10 @@ def map_pointset_loop(foldname,
 
 
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
     # set nmesh =1
-    nmesh = 150
+    nmesh = 5
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T
@@ -283,9 +281,9 @@ if __name__ == "__main__":
     
     
     # defining parameter for run
-    optimizer = quench_mixed_optimizer
+    optimizer = quench_cvode_opt
     identification_tolerance = 1e-2
-    parameter_dict = op.RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_8
+    parameter_dict = op.RUN_PARAMETERS_CVODE_8
     optimizer_parameters = parameter_dict.copy()
     # important to remove name
     optimizer_parameters.pop('name', None)

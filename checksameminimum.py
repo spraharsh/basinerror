@@ -115,10 +115,8 @@ class CheckSameMinimum:
             # returns rattlers in case there are any
             # and whether state is jammed (i.e not_fluid)
             not_fluid, rattlers = self._find_rattlers(final_minimum.flatten())
-            print(rattlers, 'rattlers')
             if np.any(rattlers==0):
                 self.nrattlermin +=1
-            print(not_fluid)
         else:
             rattlers = None
             not_fluid = False

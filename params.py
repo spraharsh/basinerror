@@ -156,7 +156,7 @@ def generate_params_from_foldername(foldername):
     """
 
 
-if True:
+if __name__=="__main__":
     # save system parameters in a unique directory
     datadir = BASE_DIRECTORY
     os.makedirs(datadir, exist_ok=True)
