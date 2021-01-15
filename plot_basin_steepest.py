@@ -66,24 +66,24 @@ def _get_colors(num_colors):
 if __name__ == "__main__":
 
     # load data
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
     # quench_type = "cvode_high_tol_final"
     # quench_type = "fire_final"
     # quench_type = "fire_final"
     # quench_type = "lbfgs_m4_final"
-    # quench_type = "lbfgs_m1_final"
+    quench_type = "lbfgs_m1_final"
     # quench_type = "CG_descent_final"
     # quench_type = 'cvode_exact'
     # quench_type = 'cvode_exact_lower'
 
 
     # quench_type = 'mxopt_cv_1e-2_final'
-    # the below run for n=32 is actuallt cv = 1e-8
+    # the below run is actually cv = 1e-8
     # quench_type = 'mxopt_cv_0_final'
 
 
-    quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
+    # quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
     # quench_type = 'correct_minima'
     data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
     print('loading data from')
@@ -111,7 +111,10 @@ if __name__ == "__main__":
     # print(np.max(order_params), 'order parameters')
     # np.set_printoptions(threshold=np.inf)
     d = lambda x: x / box_length
-    print(op_2d[0:10, 0:10])
+
+    # print to order params txt to inspect
+    print(op_2d)
+    np.savetxt('order_params_cut16.txt', op_2d, delimiter=',', fmt = '%1.3d')
     
     cmaplist = glasbey2000
     cmap = colors.ListedColormap(cmaplist)
@@ -133,9 +136,9 @@ if __name__ == "__main__":
                vmin=vmin,
                vmax=vmax)
     print(np.max(order_params))
-    plt.xlabel('x (L)')
-    plt.ylabel('y (L)')
-    plt.title(quench_type + ' (L = length of box)')
+    plt.xlabel(r'$x$ ($L$)')
+    plt.ylabel(r'$y$ ($L$)')
+    # plt.title(quench_type + ' (L = length of box)')
     plt.savefig(BASE_DIRECTORY + '/' + foldnameInversePower + '/' +
                 quench_type + '.pdf')
     plt.show()
@@ -164,3 +167,9 @@ if __name__ == "__main__":
 #     print(boollistreshaped)
 #     plt.imshow(boollistreshaped, extent= (yrange[0]/box_length, yrange[-1]/box_length, yrange[0]/box_length, yrange[-1]/box_length))
 #     plt.show()
+
+
+#  inspect order parameters manually for these
+# 014, middle greenish 042, middle down, 000, white, side nice, 007 green
+# plot 014, 042, 007
+
