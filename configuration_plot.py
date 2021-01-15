@@ -75,14 +75,23 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
     dimensions=2
     nparticles= len(radii)
     assert(nparticles == (len(configuration)))
-
+    
+    # take columnwise mean. gives mean displacement
+    # puts in box
+    configuration = configuration % box_length
+    # center of mass assuming the masses are the same
+    # calculated by taking the mean along the column axis
+    center_of_mass = np.mean(configuration, axis=0)
+    
     fig, ax = plt.subplots(figsize=(5,5))
     for particle in range(nparticles):
         # non dimensonalized w.r.t box length
         radius = radii[particle]/box_length
-        coordinates = configuration[particle]/box_length
+        coordinates = (configuration[particle] -center_of_mass)/box_length + 0.5
+        
         # discs
         disc = sg.Point(coordinates[0],coordinates[1]).buffer(radius)
+
         # add images for periodic boundary conditions
         disc_up = sg.Point(coordinates[0],coordinates[1]+1.).buffer(radius)
         disc_down = sg.Point(coordinates[0],coordinates[1]-1.).buffer(radius)
@@ -119,8 +128,8 @@ if __name__=="__main__":
     mdn = 'minima_database.npy'
     minima_number = 0
     minima_8 = [14, 42, 7]
-    minima_16 = [14, 42, 7]
-    minima_32 = [14, 42, 7]
+    minima_16 = [106]
+    minima_32 = [30]
 
     BASE_DIRECTORY_8 = "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
     configuration_list = []
@@ -148,10 +157,6 @@ if __name__=="__main__":
         plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n32')
     
     
-    print(configuration_list[2] - configuration_list[1])
-    print(configuration_list[2])
-    print(configuration_list[1])
-    print(configuration_list[0])
 
 
 
