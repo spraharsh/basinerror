@@ -12,9 +12,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from params import load_params, load_secondary_params
 
+
+import colorcet as cc
 # for overlap intersections
 import shapely.geometry as sg
 import descartes
+
+glasbey = cc.glasbey
 
 
 
@@ -26,7 +30,7 @@ import descartes
 
 
 
-BASE_DIRECTORY =  "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
+BASE_DIRECTORY =  "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
 MINIMA_DATABASE_PATH = BASE_DIRECTORY + 'minima_database.npy'
 
 
@@ -70,10 +74,6 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
     """
     dimensions=2
     nparticles= len(radii)
-    print(radii)
-    print(configuration)
-    print(len(radii))
-    print(len(configuration))
     assert(nparticles == (len(configuration)))
 
     fig, ax = plt.subplots(figsize=(5,5))
@@ -95,7 +95,7 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
         
         
         alpha = 0.3
-        disc_color = 'b'
+        disc_color = glasbey[particle]
         border_color = 'k'
         ax.add_patch(descartes.PolygonPatch(disc, fc =disc_color, ec= border_color, alpha=alpha))
         ax.add_patch(descartes.PolygonPatch(disc_up, fc =disc_color, ec= border_color, alpha=alpha))
@@ -109,7 +109,7 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
 
     plt.xlabel(r'x($L$)')
     plt.ylabel(r'y($L$)')
-    plt.savefig(figname + '.pdf')
+    plt.savefig(figname + '.pdf', dpi=300)
     plt.show()
     
     
@@ -118,9 +118,40 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
 if __name__=="__main__":
     mdn = 'minima_database.npy'
     minima_number = 0
-    radii, configuration, box_length = get_configuration(BASE_DIRECTORY, mdn, minima_number)
-    plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number))
+    minima_8 = [14, 42, 7]
+    minima_16 = [14, 42, 7]
+    minima_32 = [14, 42, 7]
 
+    BASE_DIRECTORY_8 = "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
+    configuration_list = []
+    for minima_number in minima_8:
+        radii, configuration, box_length = get_configuration(BASE_DIRECTORY_8, mdn, minima_number)
+        configuration_list.append(configuration)
+        print(radii)
+        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n8')
+
+    BASE_DIRECTORY_16 = "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
+    configuration_list = []
+    for minima_number in minima_16:
+        radii, configuration, box_length = get_configuration(BASE_DIRECTORY_16, mdn, minima_number)
+        configuration_list.append(configuration)
+        print(radii)
+        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n16')
+
+
+    BASE_DIRECTORY_32 = "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
+    configuration_list = []
+    for minima_number in minima_32:
+        radii, configuration, box_length = get_configuration(BASE_DIRECTORY_32, mdn, minima_number)
+        configuration_list.append(configuration)
+        print(radii)
+        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n32')
+    
+    
+    print(configuration_list[2] - configuration_list[1])
+    print(configuration_list[2])
+    print(configuration_list[1])
+    print(configuration_list[0])
 
 
 
