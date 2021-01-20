@@ -118,6 +118,7 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
 
     plt.xlabel(r'x($L$)')
     plt.ylabel(r'y($L$)')
+    print(figname)
     plt.savefig(figname + '.pdf', dpi=300)
     plt.show()
     
@@ -137,7 +138,7 @@ if __name__=="__main__":
         radii, configuration, box_length = get_configuration(BASE_DIRECTORY_8, mdn, minima_number)
         configuration_list.append(configuration)
         print(radii)
-        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n8')
+        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n8fixed')
 
     BASE_DIRECTORY_16 = "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
     configuration_list = []
@@ -145,7 +146,7 @@ if __name__=="__main__":
         radii, configuration, box_length = get_configuration(BASE_DIRECTORY_16, mdn, minima_number)
         configuration_list.append(configuration)
         print(radii)
-        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n16')
+        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n16fixed')
 
 
     BASE_DIRECTORY_32 = "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
@@ -154,7 +155,7 @@ if __name__=="__main__":
         radii, configuration, box_length = get_configuration(BASE_DIRECTORY_32, mdn, minima_number)
         configuration_list.append(configuration)
         print(radii)
-        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n32')
+        plot_configuration_2d(radii, configuration, box_length, 'configuration' + str(minima_number) + 'n32fixed')
     
     
 

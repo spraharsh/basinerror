@@ -31,7 +31,7 @@ import write_run_data_to_file
 from write_run_data_to_file import write_run_data_to_file
 
 
-QUENCH_FOLDER_NAME = 'cvode_petsc_first_run_matrix_free'
+QUENCH_FOLDER_NAME = 'scratch'
 
 # QUENCH_FOLDER_NAME = "cvode_high_tol_final"
 # QUENCH_FOLDER_NAME = "fire_final"
@@ -269,7 +269,7 @@ if __name__ == "__main__":
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
     # set nmesh =1
-    nmesh = 5
+    nmesh = 10
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T
@@ -328,3 +328,4 @@ if __name__ == "__main__":
     write_run_data_to_file(parameter_dict, run_diagnostics,
                            folder_location='/home/praharsh/Dropbox/research/bv-libraries/basinerror/run_diagnostic_data',
                            name = opt_name + '.yaml')
+

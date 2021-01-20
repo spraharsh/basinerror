@@ -72,18 +72,18 @@ def FindMinimumInversePower(foldname):
     #     nsteps=1000,
     #     tol=1e-7)
     # ret = quench_cvode_opt(initial_coords, potential, )
-    ret = quench_cvode_opt(potential, initial_coords, tol=1e-9, rtol=1e-10, atol=1e-10)
+    ret = quench_cvode_opt(initial_coords, potential, tol=1e-9, rtol=1e-10, atol=1e-10)
 
     finalcoords = ret.coords
     print(ret.coords)
-    np.savetxt(foldpath + '/coords_of_minimum.txt', finalcoords, delimiter=',')
+    # np.savetxt(foldpath + '/coords_of_minimum.txt', finalcoords, delimiter=',')
     print(ret)
     # print(ret.coords)
     # print(ret2.coords)
     # print(ret2.coords-ret.coords)
     print(finalcoords)
     E, V, H = potential.getEnergyGradientHessian(finalcoords)
-    print(np.linalg.eigvals(H))
+    print(np.linalg.eigvals(H), 'all eigenvalues')
     # print(potential.getEnergyGradient(initial_coords))
 
 
