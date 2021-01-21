@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from pickle import TRUE
 import numpy as np
 import os
 from pele.utils.cell_scale import get_box_length, get_ncellsx_scale
@@ -124,6 +125,7 @@ def generate_save_secondary_params(par, folder):
 
     # for binary mixture
     npart_by_2 = par.n_part.value // 2
+    # NOTE: TODO: bug fix seeds
     hs_radii = np.array(
         list(par.r1.value + par.rstd1.value * np.random.randn(npart_by_2)) +
         list(par.r2.value +
@@ -132,6 +134,7 @@ def generate_save_secondary_params(par, folder):
     print(len(hs_radii), 'nparts')
     box_length = get_box_length(hs_radii, par.ndim.value, par.phi.value)
     print(box_length, 'box_length')
+    # initial coords are present, to keep continuity with previous code. but they are not necessary
     initial_coords = np.random.rand(
         par.n_part.value * par.ndim.value) * box_length
     print(initial_coords, 'initial coords')
@@ -140,6 +143,9 @@ def generate_save_secondary_params(par, folder):
     np.savetxt(folder + '/hs_radii.txt', hs_radii, delimiter=',')
     np.savetxt(folder + '/initial_coords.txt', initial_coords, delimiter=',')
     np.savetxt(folder + '/box_length.txt', [box_length], delimiter=',')
+
+
+
 
 
 def load_secondary_params(folder):
@@ -172,7 +178,7 @@ if __name__=="__main__":
     # make the directory
     foldername = datadir + '/' + namestr
     os.makedirs(foldername, exist_ok=True)
-    # fname = foldername + '/systemdata.json'
+    
     # Inverse power saving
     save_params(param, foldername)
     generate_save_secondary_params(param, foldername)
