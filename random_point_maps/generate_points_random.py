@@ -64,9 +64,10 @@ def generate_random_configuration_single(box_length,n_part, n_dim, seed_coords):
 
 
 
-def generate_random_configurations(foldpath, ensemble_size, seed_entropy=None, seed_radii=0, subfoldname=SUB_FOLD_NAME):
+def generate_save_random_configurations(foldpath, ensemble_size, seed_entropy=None, seed_radii=0, subfoldname=SUB_FOLD_NAME):
     """ generates and saves random configurations 
         for particles given a folder with particular configurations
+        each random configuration is stored in its own file that defines the ensemble
     
     Args:
        foldname ${1:arg1}
@@ -110,29 +111,22 @@ def generate_random_configurations(foldpath, ensemble_size, seed_entropy=None, s
     assert(len(seeds) == ensemble_size)
     print(seed_entropy)
     
-    config_list = []
+    ensemble_path = run_foldpath + '/ensemble'
+    os.makedirs(ensemble_path, exist_ok=True)
+    
     for seed_coords in seeds:
-        config_list.append(generate_random_configuration_single(box_length, params.n_part.value, params.ndim.value, seed_coords))
-    return np.array(config_list)
+        coords = generate_random_configuration_single(box_length, params.n_part.value, params.ndim.value, seed_coords)
+        # save according to the spawn key
+        np.savetxt(ensemble_path + '/' + str(seed_coords.spawn_key[0]), coords)
+    return 0
 
-
-def save_random_configurations(random_configs, foldpath, subfoldname=SUB_FOLD_NAME):
-    """ saves random configurations to a subfolder as a numpy array
-    Args:
-       random_configs
+def load_configuration(foldpath, subfoldname, spawn_key):
     """
-    ensemblesize = len(random_configs)
-    np.savetxt(foldpath+'/' + subfoldname +'/'
-               + random_config_filename(ensemble_size), random_configs, delimiter=',')
+    loads configuration given the ensemble directory and spawn key 
+    """
+    random_config_filename = foldpath + '/' + subfoldname + '/' + 'ensemble/' + str(spawn_key)
+    return np.loadtxt(random_config_filename, delimiter=',')
 
-
-def random_config_filename(ensemble_size):
-    return  'random_configs' + str(ensemble_size) + '.txt'
-
-
-def load_configurations(foldpath, ensemble_size, subfoldname=SUB_FOLD_NAME):
-    return np.loadtxt(foldpath+'/' + subfoldname +'/'
-                      + random_config_filename(ensemble_size), delimiter=',')
 
 
 
@@ -144,9 +138,10 @@ if __name__=="__main__":
     foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
     ensemble_size = int(5e4)
-    configs = generate_random_configurations(foldpath, ensemble_size)
-    save_random_configurations(configs, foldpath)
-    configs2 =load_configurations(foldpath, ensemble_size)
+    # generate_save_random_configurations(foldpath, ensemble_size)
+    print(load_configuration(foldpath, SUB_FOLD_NAME, 2))
+    
+    # configs2 =load_configurations(foldpath, ensemble_size)
 
 
 

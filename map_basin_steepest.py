@@ -203,7 +203,7 @@ def map_pointset_loop(foldname,
     potential = InversePower(sysparams.power.value,
                              sysparams.eps.value,
                              use_cell_lists=False,
-                             ndim=sysparams.ndim.value,
+                             ndim=sysparams.ndim.value,0
                              radii=hs_radii * 1.0,
                              boxvec=[box_length, box_length])
     minima_container = CheckSameMinimum(
