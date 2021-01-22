@@ -176,6 +176,8 @@ class CheckSameMinimum:
         correct_minimum: array
             coordinates of the correct minimum
         """
+        if rattlers==None:
+            rattlers= np.ones(len(aligned_minimum))
         dist_vec_array = (aligned_minimum - correct_minimum) % self.boxl
         dist_vec_array = np.where(dist_vec_array>self.boxl/2, self.boxl-dist_vec_array, dist_vec_array)
         # if the displacements are too large flip the box

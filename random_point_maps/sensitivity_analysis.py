@@ -1,15 +1,19 @@
 """
 Script that compares dat between two runs
 """
+from utils.cell_scale import get_box_length
+from generate_points_random import get_hs_radii
 from generate_points_random import SUB_FOLD_NAME
 import yaml
 import numpy as np
-from params import BASE_DIRECTORY
+from params import BASE_DIRECTORY, load_params
+# should rewrite this
+from checksameminimum import CheckSameMinimum
 
 
 
 
-def compare_runs(fnames, run_a, run_b):
+def compare_runs_2d(fnames, foldpath, subfoldname, run_a, run_b, ctol):
     """ compares runs on points with names fnames between
         runs done with 2 minima find routines run_a and run_b
 
@@ -22,16 +26,45 @@ def compare_runs(fnames, run_a, run_b):
         percentage of minima that are the same
 
     """
-    return 0
+    # TODO: replace this
+    sysparams = load_params(foldpath)
+    radii = get_hs_radii(foldpath, subfoldname)
+    box_length = get_box_length(radii, sysparams.ndim.value, sysparams.phi.value)
+    
+    subfoldpath = foldpath + '/' + subfoldname
+    data_path_a = subfoldpath + '/' + run_a
+    data_path_b = subfoldpath + '/' + run_b
+    minima_checker = CheckSameMinimum(ctol, dim=2, boxl=box_length)
+
+    
+    same_minimum_check_l = []
+    for fname in fnames:
+        minimum_a = np.loadtxt(data_path_a+ '/' + fname, delimiter=',')
+        minimum_b = np.loadtxt(data_path_b+ '/' + fname, delimiter=',')
+        boxed_minimum_a = minima_checker.box_reshape_coords(minimum_a)
+        boxed_minimum_b = minima_checker.box_reshape_coords(minimum_b)
+        # TODO: rewrite the CheckSameMinimum function
+        # load and make sure the particle being aligned is not a rattler later
+        # we're choosing -1 because that's always going to be of radius 1.4
+        #  particle
+        aligned_minimum_b = minima_checker.align_structures(boxed_minimum_a, 
+                                                            boxed_minimum_b, part_ind=-1)
+        same_minimum_check = minima_checker.check_same_structure(aligned_minimum_b,
+                                                                 boxed_minimum_a)
+        same_minimum_check_l.append(same_minimum_check)
+
+    fraction_same_minimum = np.mean(same_minimum_check_l)
+    print(fraction_same_minimum)
+    return fraction_same_minimum
 
 
 
-def average_heuristics(run_folder, fnames):
+def average_heuristics(subfoldpath, run_folder_name, fnames):
     nfev_list = []
     nhev_list = []
     nsteps_list= []
     for fname in fnames:
-        output_name = run_folder + '/' + fname + 'heuristics.yaml'
+        output_name = subfoldpath + '/' + run_folder_name + '/' + fname + 'heuristics.yaml'
         with open(output_name, 'r') as heur_file:
             heuristics = yaml.load(heur_file, Loader=yaml.FullLoader)
             nfev_list.append(heuristics["nfev"])
@@ -42,7 +75,7 @@ def average_heuristics(run_folder, fnames):
     nhev_av = np.mean(nhev_list)
     nsteps_av = np.mean(nsteps_list)
     av_dict = {'nfev_av':nfev_av, 'nhev_av':nhev_av, 'nsteps_av':nsteps_av}
-    with open(run_folder + '/' + 'average_heuristics.yaml', 'w') as heur_av_file:
+    with open(subfoldpath + '/' + run_folder_name +  'average_heuristics.yaml', 'w') as heur_av_file:
         yaml.dump(av_dict, heur_av_file)
     return nfev_av, nhev_av, nsteps_av
 
@@ -52,11 +85,16 @@ if __name__== "__main__":
     foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     opt_name = 'cvode_exact'
     sub_fold_name = SUB_FOLD_NAME
-    foldpath = str(BASE_DIRECTORY+'/' + foldname + '/' + sub_fold_name + '/' + opt_name)
+    fold_path = str(BASE_DIRECTORY+'/' + foldname)
     ensemble_size = int(5e3)
     fnames = list(map(str, range(ensemble_size)))
-    print(average_heuristics(foldpath, fnames))
-    print(foldpath)
+    # print(average_heuristics(sub_fold_path, opt_name, fnames))
+
+    identification_tolerance = 1e-2
+    # comparison checks
+    opt_a = 'cvode_exact'
+    opt_b = 'cvode_exact_lower'
+    print(compare_runs_2d(fnames, fold_path, sub_fold_name, opt_a, opt_b, identification_tolerance))
     
 
 
