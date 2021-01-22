@@ -25,11 +25,6 @@ def write_run_data_to_file(optimizer_parameters, run_diagnostics, folder_locatio
     name: str
         name of the file
     """
-    dictionary  = {
-        "brand": "Ford",
-        "model": "Mustang",
-        "year": 1964}
-    
 
     optimizer_parameters.update(run_diagnostics)
     full_data = optimizer_parameters
