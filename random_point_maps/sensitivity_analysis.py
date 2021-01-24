@@ -9,6 +9,7 @@ import numpy as np
 from params import BASE_DIRECTORY, load_params
 # should rewrite this
 from checksameminimum import CheckSameMinimum
+from pele.potentials import InversePower
 
 
 
@@ -34,7 +35,14 @@ def compare_runs_2d(fnames, foldpath, subfoldname, run_a, run_b, ctol):
     subfoldpath = foldpath + '/' + subfoldname
     data_path_a = subfoldpath + '/' + run_a
     data_path_b = subfoldpath + '/' + run_b
-    minima_checker = CheckSameMinimum(ctol, dim=2, boxl=box_length)
+    potential = InversePower(sysparams.power.value,
+                             sysparams.eps.value,
+                             use_cell_lists=False,
+                             ndim=sysparams.ndim.value,
+                             radii=radii * 1.0,
+                             boxvec=[box_length, box_length])
+    minima_checker = CheckSameMinimum(ctol, dim=2, boxl=box_length,
+                                      hs_radii=radii, potential=potential)
 
     
     same_minimum_check_l = []
@@ -43,6 +51,9 @@ def compare_runs_2d(fnames, foldpath, subfoldname, run_a, run_b, ctol):
         minimum_b = np.loadtxt(data_path_b+ '/' + fname, delimiter=',')
         boxed_minimum_a = minima_checker.box_reshape_coords(minimum_a)
         boxed_minimum_b = minima_checker.box_reshape_coords(minimum_b)
+        # get first index that is not a rattler
+        rattlers_exist, rattlers = minima_checker._find_rattlers(minimum_a)
+        print(rattlers)
         # TODO: rewrite the CheckSameMinimum function
         # load and make sure the particle being aligned is not a rattler later
         # we're choosing -1 because that's always going to be of radius 1.4
@@ -50,7 +61,7 @@ def compare_runs_2d(fnames, foldpath, subfoldname, run_a, run_b, ctol):
         aligned_minimum_b = minima_checker.align_structures(boxed_minimum_a, 
                                                             boxed_minimum_b, part_ind=-1)
         same_minimum_check = minima_checker.check_same_structure(aligned_minimum_b,
-                                                                 boxed_minimum_a)
+                                                                 boxed_minimum_a, rattlers)
         same_minimum_check_l.append(same_minimum_check)
 
     fraction_same_minimum = np.mean(same_minimum_check_l)
@@ -89,10 +100,9 @@ if __name__== "__main__":
     ensemble_size = int(5e3)
     fnames = list(map(str, range(ensemble_size)))
     # print(average_heuristics(sub_fold_path, opt_name, fnames))
-
     identification_tolerance = 1e-2
     # comparison checks
-    opt_a = 'cvode_exact'
+    opt_a = 'CVODE_high_tol'
     opt_b = 'cvode_exact_lower'
     print(compare_runs_2d(fnames, fold_path, sub_fold_name, opt_a, opt_b, identification_tolerance))
     

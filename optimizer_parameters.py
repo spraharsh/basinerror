@@ -21,7 +21,7 @@ RUN_PARAMETERS_MODIFIED_FIRE_8 = {
 }
 
 RUN_PARAMETERS_CVODE_8 = {
-    "name": "CVODE",
+    "name": "CVODE_high_tol",
     "tol": 1e-6,                   # tolerance with which minimum is identified
     "rtol": 1e-4,                # relative local tolerance of path
     "atol": 1e-4                 # relative absolute tolerance of path
@@ -31,7 +31,7 @@ RUN_PARAMETERS_CVODE_8 = {
 # These parameters are for lower tolerance runs
 # for figuring out exact basins
 RUN_PARAMETERS_CVODE_EXACT_8 = {
-    "name": "CVODE exact",
+    "name": "CVODE_exact",
     "tol": 1e-6,                   # tolerance with which minimum is identified
     "rtol": 1e-8,                # relative local tolerance of path
     "atol": 1e-8                 # relative absolute tolerance of path
@@ -39,7 +39,7 @@ RUN_PARAMETERS_CVODE_EXACT_8 = {
 
 # run parameter at one order lower tolerance to figure out
 RUN_PARAMETERS_CVODE_EXACT_LOWER_8 = RUN_PARAMETERS_CVODE_EXACT_8.copy()
-RUN_PARAMETERS_CVODE_EXACT_LOWER_8['name'] = 'CVODE exact lower tolerance'
+RUN_PARAMETERS_CVODE_EXACT_LOWER_8['name'] = 'CVODE_exact_lower_tol'
 RUN_PARAMETERS_CVODE_EXACT_LOWER_8['rtol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER_8['rtol'] * 1e-1
 RUN_PARAMETERS_CVODE_EXACT_LOWER_8['atol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER_8['atol'] * 1e-1
 
@@ -76,8 +76,8 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_8 = {
 # These parameters are the way they are because when they were
 # chosen for generating more accurate basins
 # of attraction fast in https://pubs.acs.org/doi/10.1021/jp312457a
-RUN_PARAMETERS_LBFGS__M_4_8 = {
-    "name": "LBFGS",
+RUN_PARAMETERS_LBFGS_M_4_8 = {
+    "name": "LBFGS_M4",
     "tol": 1e-6,            # tolerance with which minimum is identified
     "M": 4,                    # size of stored memory
     # maximum size of step note that the step is made smaller
@@ -88,7 +88,7 @@ RUN_PARAMETERS_LBFGS__M_4_8 = {
 }
 
 RUN_PARAMETERS_LBFGS_M_1_8 = {
-    "name": "LBFGS",
+    "name": "LBFGS_M1",
     "tol": 1e-6,            # tolerance with which minimum is identified
     "M": 1,                  # size of stored memory
     # maximum size of step note that the step is made smaller
@@ -101,7 +101,7 @@ RUN_PARAMETERS_LBFGS_M_1_8 = {
 
 RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_8 = {
     # parameters CVODE
-    "name": "mixed optimizer",
+    "name": "mixed_optimizer_new",
     "tol": 1e-6,   # tolerance with which minimum is identified
     "rtol": 1e-4,   # relative local tolerance of path
     "atol": 1e-4,   # relative absolute tolerance of path

@@ -1,12 +1,14 @@
+from optimizer_parameters_16 import RUN_PARAMETERS_LBFGS_M_1_16
 from optimizer_parameters import *
 from utils.cell_scale import get_box_length, get_ncellsx_scale
 from generate_points_random import SUB_FOLD_NAME, get_hs_radii
+from pele.optimize._quench import modifiedfire_cpp, lbfgs_cpp
 import numpy as np
 import os
 import yaml
 from pele.potentials import InversePower
 from params import BASE_DIRECTORY, load_params
-from quenches import quench_cvode_opt, quench_pycg_descent, quench_steepest
+from quenches import quench_LBFGS, quench_cvode_opt, quench_mixed_optimizer, quench_pycg_descent, quench_steepest
 
 def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
                                 optimizer, opt_param_dict):
@@ -106,11 +108,11 @@ def quench_multiple(foldpath, sub_fold_name, fnames, output_dir,
 if __name__== "__main__":
     foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(5e4)
-    quench = quench_cvode_opt
-    opt_params = RUN_PARAMETERS_CVODE_EXACT_LOWER_8
+    ensemble_size = int(5e3)
+    quench = lbfgs_cpp
+    opt_params = RUN_PARAMETERS_LBFGS_M_4_8
     opt_name= opt_params['name']
     opt_params.pop('name', None)
     fnames = list(map(str, range(ensemble_size)))
-    quench_multiple(foldpath, SUB_FOLD_NAME, fnames, 'cvode_exasasr', quench, opt_params)
+    quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
     print(fnames)
