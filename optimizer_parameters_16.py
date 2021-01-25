@@ -8,7 +8,7 @@ to make sure that we always store ideal run parameters here
 """
 
 RUN_PARAMETERS_MODIFIED_FIRE_16 = {
-    "name": "modified fire",
+    "name": "modified_fire",
     "tol": 1e-6,
     "dtstart": 0.1,
     "dtmax": 1,
@@ -31,7 +31,7 @@ RUN_PARAMETERS_CVODE_16 = {
 # These parameters are for lower tolerance runs
 # for figuring out exact basins
 RUN_PARAMETERS_CVODE_EXACT_16 = {
-    "name": "CVODE exact",
+    "name": "cvode_exact",
     "tol": 1e-6,                   # tolerance with which minimum is identified
     "rtol": 1e-8,                # relative local tolerance of path
     "atol": 1e-8                 # relative absolute tolerance of path
@@ -54,7 +54,7 @@ RUN_PARAMETERS_CGDESCENT_16 = {
 
 RUN_PARAMETERS_MIXED_OPTIMIZER_16 = {
     # parameters CVODE
-    "name": "mixed optimizer",
+    "name": "mixed_optimizer",
     "tol": 1e-6,   # tolerance with which minimum is identified
     "rtol": 1e-4,   # relative local tolerance of path
     "atol": 1e-4,   # relative absolute tolerance of path
@@ -77,7 +77,7 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_16 = {
 # chosen for generating more accurate basins
 # of attraction fast in https://pubs.acs.org/doi/10.1021/jp312457a
 RUN_PARAMETERS_LBFGS_M_4_16 = {
-    "name": "LBFGS",
+    "name": "LBFGS_M4",
     "tol": 1e-6,            # tolerance with which minimum is identified
     "M": 4,                    # size of stored memory
     # maximum size of step note that the step is made smaller
@@ -88,7 +88,7 @@ RUN_PARAMETERS_LBFGS_M_4_16 = {
 }
 
 RUN_PARAMETERS_LBFGS_M_1_16 = {
-    "name": "LBFGS",
+    "name": "LBFGS_M1",
     "tol": 1e-6,            # tolerance with which minimum is identified
     "M": 1,                  # size of stored memory
     # maximum size of step note that the step is made smaller
@@ -101,13 +101,13 @@ RUN_PARAMETERS_LBFGS_M_1_16 = {
 
 RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16 = {
     # parameters CVODE
-    "name": "mixed optimizer",
+    "name": "mixed_optimizer_new",
     "tol": 1e-6,   # tolerance with which minimum is identified
     "rtol": 1e-4,   # relative local tolerance of path
     "atol": 1e-4,   # relative absolute tolerance of path
     # parameters Newtons
     # number of steps at which a convergence step is run
-    "T": 35,
+    "T": 30,
     # Newton step size only make sense for stepsize 1
     "step": 1,
     # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol

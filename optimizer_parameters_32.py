@@ -8,7 +8,7 @@ to make sure that we always store ideal run parameters here
 """
 
 RUN_PARAMETERS_MODIFIED_FIRE_32 = {
-    "name": "modified fire",
+    "name": "modified_fire",
     "tol": 1e-8,
     "dtstart": 0.1,
     "dtmax": 1,
@@ -23,7 +23,7 @@ RUN_PARAMETERS_MODIFIED_FIRE_32 = {
 
 # note that CVODE wouldn't converge at higher tolerances at 1e-4 (need to check whether it's the rattler situation) 
 RUN_PARAMETERS_CVODE_32 = {
-    "name": "CVODE",
+    "name": "cvode",
     "tol": 1e-8,                   # tolerance with which minimum is identified
     "rtol": 1e-5,                # relative local tolerance of path
     "atol": 1e-5                 # relative absolute tolerance of path
@@ -33,7 +33,7 @@ RUN_PARAMETERS_CVODE_32 = {
 # These parameters are for lower tolerance runs
 # for figuring out exact basins
 RUN_PARAMETERS_CVODE_EXACT_32 = {
-    "name": "CVODE exact",
+    "name": "cvode_exact",
     "tol": 1e-8,                   # tolerance with which minimum is identified
     "rtol": 1e-10,                # relative local tolerance of path
     "atol": 1e-10                 # relative absolute tolerance of path
@@ -41,7 +41,7 @@ RUN_PARAMETERS_CVODE_EXACT_32 = {
 
 # run parameter at one order lower tolerance to figure out
 RUN_PARAMETERS_CVODE_EXACT_LOWER_32 = RUN_PARAMETERS_CVODE_EXACT_32.copy()
-RUN_PARAMETERS_CVODE_EXACT_LOWER_32['name'] = 'CVODE exact lower tolerance'
+RUN_PARAMETERS_CVODE_EXACT_LOWER_32['name'] = 'cvode_exact_lower'
 RUN_PARAMETERS_CVODE_EXACT_LOWER_32['rtol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER_32['rtol'] * 1e-1
 RUN_PARAMETERS_CVODE_EXACT_LOWER_32['atol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER_32['atol'] * 1e-1
 
@@ -58,7 +58,7 @@ RUN_PARAMETERS_CGDESCENT_32 = {
 # I also had to increase conv factor a bit because it messed up a few directions
 RUN_PARAMETERS_MIXED_OPTIMIZER_32 = {
     # parameters CVODE
-    "name": "mixed optimizer",
+    "name": "mixed_optimizer_new",
     "tol": 1e-8,   # tolerance with which minimum is identified
     "rtol": 1e-4,   # relative local tolerance of path
     "atol": 1e-4,   # relative absolute tolerance of path
@@ -81,7 +81,7 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_32 = {
 # chosen for generating more accurate basins
 # of attraction fast in https://pubs.acs.org/doi/10.1021/jp312457a
 RUN_PARAMETERS_LBFGS_M_4_32 = {
-    "name": "LBFGS",
+    "name": "LBFGS_M4",
     "tol": 1e-8,            # tolerance with which minimum is identified
     "M": 4,                    # size of stored memory
     # maximum size of step note that the step is made smaller
@@ -92,7 +92,7 @@ RUN_PARAMETERS_LBFGS_M_4_32 = {
 }
 
 RUN_PARAMETERS_LBFGS_M_1_32 = {
-    "name": "LBFGS",
+    "name": "LBFGS_M1",
     "tol": 1e-8,            # tolerance with which minimum is identified
     "M": 1,                  # size of stored memory
     # maximum size of step note that the step is made smaller

@@ -1,4 +1,5 @@
-from optimizer_parameters_16 import RUN_PARAMETERS_LBFGS_M_1_16
+from optimizer_parameters_32 import RUN_PARAMETERS_CVODE_EXACT_32, RUN_PARAMETERS_LBFGS_M_4_32
+from optimizer_parameters_16 import RUN_PARAMETERS_CGDESCENT_16, RUN_PARAMETERS_CVODE_16, RUN_PARAMETERS_CVODE_EXACT_16, RUN_PARAMETERS_CVODE_EXACT_LOWER_16, RUN_PARAMETERS_LBFGS_M_1_16, RUN_PARAMETERS_LBFGS_M_4_16, RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16, RUN_PARAMETERS_MODIFIED_FIRE_16
 from optimizer_parameters import *
 from utils.cell_scale import get_box_length, get_ncellsx_scale
 from generate_points_random import SUB_FOLD_NAME, get_hs_radii
@@ -42,7 +43,7 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
 
     potential = InversePower(sysparams.power.value,
                              sysparams.eps.value,
-                             use_cell_lists=True,
+                             use_cell_lists=False,
                              ndim=sysparams.ndim.value,
                              radii=radii * 1.0,
                              boxvec=boxv)
@@ -106,11 +107,11 @@ def quench_multiple(foldpath, sub_fold_name, fnames, output_dir,
 
 
 if __name__== "__main__":
-    foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldname = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
     ensemble_size = int(5e3)
-    quench = lbfgs_cpp
-    opt_params = RUN_PARAMETERS_LBFGS_M_4_8
+    quench = quench_cvode_opt
+    opt_params = RUN_PARAMETERS_CVODE_EXACT_32
     opt_name= opt_params['name']
     opt_params.pop('name', None)
     fnames = list(map(str, range(ensemble_size)))

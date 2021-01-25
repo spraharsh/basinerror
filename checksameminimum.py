@@ -316,7 +316,6 @@ class CheckSameMinimum:
         # test that number of contacts is sufficient for bulk modulus to be positive,
         # see eq 4 in http://journals.aps.org/prl/abstract/10.1103/PhysRevLett.109.095704
         # see eq 19 in arXiv:1406.1529
-        print(nrattlers, 'nrattlers')
         no_stable = self.nparticles - nrattlers
         total_contacts = sum([len(neighbor_indices)
                               for neighbor_indices in neighbor_indicess])

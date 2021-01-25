@@ -38,6 +38,7 @@ def generate_random_radii_inverse_power(params, seed_radii, foldpath, subfoldnam
     radii_1 = list(params.r1.value + params.rstd1.value*samples_1)
     radii_2 = list(params.r2.value + params.rstd2.value*samples_2)
     radii = np.array(radii_1+radii_2)
+    os.makedirs(foldpath + '/' + subfoldname, exist_ok=True)
     np.savetxt(foldpath + '/' + subfoldname + '/radii.txt', radii)
     return radii
 
@@ -135,11 +136,12 @@ def load_configuration(foldpath, subfoldname, spawn_key):
 
 
 if __name__=="__main__":
-    foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldname = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
     ensemble_size = int(5e4)
-    # generate_save_random_configurations(foldpath, ensemble_size)
-    print(load_configuration(foldpath, SUB_FOLD_NAME, 2))
+    # generate_random_radii_inverse_power()
+    generate_save_random_configurations(foldpath, ensemble_size)
+    # print(load_configuration(foldpath, SUB_FOLD_NAME, 2))
     
     # configs2 =load_configurations(foldpath, ensemble_size)
 
