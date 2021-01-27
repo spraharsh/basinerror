@@ -55,12 +55,15 @@ def compare_runs_2d(fnames, foldpath, subfoldname, run_a, run_b, ctol):
         boxed_minimum_b = minima_checker.box_reshape_coords(minimum_b)
         # get first index that is not a rattler
         rattlers_exist, rattlers = minima_checker._find_rattlers(minimum_a)
+        rattlers_dont_exist = np.count_nonzero(rattlers==0) == 0
+        first_non_rattler = (np.argwhere(rattlers!=0).T)[0,0]
+        
         # TODO: rewrite the CheckSameMinimum function
         # load and make sure the particle being aligned is not a rattler later
         # we're choosing -1 because that's always going to be of radius 1.4
         #  particle
         aligned_minimum_b = minima_checker.align_structures(boxed_minimum_a, 
-                                                            boxed_minimum_b, part_ind=-1)
+                                                            boxed_minimum_b, part_ind=first_non_rattler)
         same_minimum_check = minima_checker.check_same_structure(aligned_minimum_b,
                                                                  boxed_minimum_a, rattlers)
         same_minimum_check_l.append(same_minimum_check)
@@ -123,15 +126,16 @@ def get_all_heuristics(fnames, foldpath, subfoldname, run_fold_name, correct_fol
 
 
 if __name__== "__main__":
-    foldname = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldname = "ndim=2phi=0.9seed=0n_part=64r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     opt_name = 'cvode_exact'
     sub_fold_name = SUB_FOLD_NAME
     fold_path = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(5e3)
+    ensemble_size = int(2e3)
     fnames = list(map(str, range(ensemble_size)))
     # print(average_heuristics(sub_fold_path, opt_name, fnames))
     identification_tolerance = 1e-2
     # comparison checks
+    # opt_a = 'mixed_optimizer_new_lower_tol_2'
     opt_a = 'LBFGS_M4'
     opt_b = 'cvode_exact_lower'
     # print(compare_runs_2d(fnames, fold_path, sub_fold_name, opt_a, opt_b, identification_tolerance))

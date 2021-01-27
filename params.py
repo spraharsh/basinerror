@@ -59,21 +59,21 @@ class SystemParamInversePowerBinary(Enum):
         As done for inverse powe
     """
     # general parameters
-    ndim = 3
-    phi = 0.7
+    ndim = 2
+    phi = 0.9
     # The seed should ideally determine every randomly generated
     # extra parameters
     seed = 0
 
     # particle parameters
-    n_part = 32
+    n_part = 64
     r1 = 1.0
     r2 = 1.4
     rstd1 = 0.05
     rstd2 = 0.05 * 1.4
 
     # potential parameters
-    use_cell_lists = True
+    use_cell_lists = False
     power = 2.5  # hertz power
     eps = 1
 

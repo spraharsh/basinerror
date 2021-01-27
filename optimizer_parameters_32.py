@@ -30,6 +30,14 @@ RUN_PARAMETERS_CVODE_32 = {
 }
 
 
+# note that CVODE wouldn't converge at higher tolerances at 1e-4 (need to check whether it's the rattler situation) 
+RUN_PARAMETERS_CVODE_32_TEST = {
+    "name": "cvode_higher_tol_check",
+    "tol": 1e-6,                   # tolerance with which minimum is identified
+    "rtol": 1e-4,                # relative local tolerance of path
+    "atol": 1e-4                 # relative absolute tolerance of path
+}
+
 # These parameters are for lower tolerance runs
 # for figuring out exact basins
 RUN_PARAMETERS_CVODE_EXACT_32 = {
@@ -58,7 +66,7 @@ RUN_PARAMETERS_CGDESCENT_32 = {
 # I also had to increase conv factor a bit because it messed up a few directions
 RUN_PARAMETERS_MIXED_OPTIMIZER_32 = {
     # parameters CVODE
-    "name": "mixed_optimizer_new",
+    "name": "mixed_optimizer",
     "tol": 1e-8,   # tolerance with which minimum is identified
     "rtol": 1e-4,   # relative local tolerance of path
     "atol": 1e-4,   # relative absolute tolerance of path
@@ -73,6 +81,116 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_32 = {
     "conv_factor": 2.0
 }
 
+RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL = {
+    # parameters CVODE
+    "name": "mixed_optimizer_new_lower_tol",
+    "tol": 1e-8,   # tolerance with which minimum is identified
+    "rtol": 1e-5,   # relative local tolerance of path
+    "atol": 1e-5,   # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 30,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
+
+RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2 = {
+    # parameters CVODE
+    "name": "mixed_optimizer_new_lower_tol_2",
+    "tol": 1e-8,   # tolerance with which minimum is identified
+    "rtol": 1e-5,   # relative local tolerance of path
+    "atol": 1e-5,   # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 60,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
+
+RUN_PARAMETERS_CVODE_RTOL_1e_m6 = {
+    "name": "cvode_exact_1e_m6",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-6,                # relative local tolerance of path
+    "atol": 1e-6                 # relative absolute tolerance of path
+}
+
+RUN_PARAMETERS_CVODE_RTOL_1e_m7 = {
+    "name": "cvode_exact_1e_m7",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-7,                # relative local tolerance of path
+    "atol": 1e-7                 # relative absolute tolerance of path
+
+}
+RUN_PARAMETERS_MXOPT_RTOL_1e_m6 = {
+    "name": "mxopt_1e_m6",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-6,                # relative local tolerance of path
+    "atol": 1e-6,                 # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 30,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
+
+RUN_PARAMETERS_MXOPT_RTOL_1e_m6 = {
+    "name": "mxopt_1e_m6",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-6,                # relative local tolerance of path
+    "atol": 1e-6,                 # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 30,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
+RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T100 = {
+    "name": "mxopt_1e_m6_T100",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-6,                # relative local tolerance of path
+    "atol": 1e-6,                 # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 100,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
+
+RUN_PARAMETERS_MXOPT_RTOL_1e_m7 = {
+    "name": "mxopt_1e_m7",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-7,                # relative local tolerance of path
+    "atol": 1e-7,                 # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 30,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
 
 # this happens to be LBFGS as written in pele.
 # These parameters are NON STANDARD

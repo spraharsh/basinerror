@@ -1,4 +1,4 @@
-from optimizer_parameters_32 import RUN_PARAMETERS_CVODE_EXACT_32, RUN_PARAMETERS_LBFGS_M_4_32
+from optimizer_parameters_32 import RUN_PARAMETERS_CGDESCENT_32, RUN_PARAMETERS_CVODE_32, RUN_PARAMETERS_CVODE_32_TEST, RUN_PARAMETERS_CVODE_EXACT_32, RUN_PARAMETERS_CVODE_EXACT_LOWER_32, RUN_PARAMETERS_CVODE_RTOL_1e_m6, RUN_PARAMETERS_CVODE_RTOL_1e_m7, RUN_PARAMETERS_LBFGS_M_1_32, RUN_PARAMETERS_LBFGS_M_4_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL, RUN_PARAMETERS_MODIFIED_FIRE_32, RUN_PARAMETERS_MXOPT_RTOL_1e_m6, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T100, RUN_PARAMETERS_MXOPT_RTOL_1e_m7
 from optimizer_parameters_16 import RUN_PARAMETERS_CGDESCENT_16, RUN_PARAMETERS_CVODE_16, RUN_PARAMETERS_CVODE_EXACT_16, RUN_PARAMETERS_CVODE_EXACT_LOWER_16, RUN_PARAMETERS_LBFGS_M_1_16, RUN_PARAMETERS_LBFGS_M_4_16, RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16, RUN_PARAMETERS_MODIFIED_FIRE_16
 from optimizer_parameters import *
 from utils.cell_scale import get_box_length, get_ncellsx_scale
@@ -37,7 +37,7 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
     
     radii = get_hs_radii(foldpath, sub_fold_name)
     box_length = get_box_length(radii, sysparams.ndim.value, sysparams.phi.value)
-
+    
     boxv = [box_length]*sysparams.ndim.value
     ncellx_scale = get_ncellsx_scale(radii, boxv)
 
@@ -48,12 +48,13 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
                              radii=radii * 1.0,
                              boxvec=boxv)
     
-    # try:
-    ret = optimizer(quench_coords, potential, **opt_param_dict)
-    # except:
-    #     print("exception occured")
-    #     # if exception occurs, treat as failure. this is for rattlers
-    #     return (quench_coords, False, 0, 0, 0)
+
+    try:
+        ret = optimizer(quench_coords, potential, **opt_param_dict)
+    except:
+        print("exception occured")
+        # if exception occurs, treat as failure. this is for rattlers
+        return (quench_coords, False, 0, 0, 0)
 
     # This exists because some runs don't have hessian evaluations
     try:
@@ -107,13 +108,35 @@ def quench_multiple(foldpath, sub_fold_name, fnames, output_dir,
 
 
 if __name__== "__main__":
-    foldname = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldname = "ndim=2phi=0.9seed=0n_part=64r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(5e3)
-    quench = quench_cvode_opt
-    opt_params = RUN_PARAMETERS_CVODE_EXACT_32
+    ensemble_size = int(1e2)
+    # quench = quench_cvode_opt
+    # opt_params = RUN_PARAMETERS_CVODE_EXACT_LOWER_32
+    # opt_name= opt_params['name']
+    # opt_params.pop('name', None)
+    # fnames = list(map(str, range(ensemble_size)))
+    # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
+    # print(fnames)
+    # quench = quench_cvode_opt
+    # opt_params = RUN_PARAMETERS_CVODE_EXACT_32
+    # opt_name= opt_params['name']
+    # opt_params.pop('name', None)
+    # fnames = list(map(str, range(ensemble_size)))
+    # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
+    # print(fnames)
+    # quench=quench_mixed_optimizer
+    # opt_params = RUN_PARAMETERS_MXOPT_RTOL_1e_m6
+    # opt_name= opt_params['name']
+    # opt_params.pop('name', None)
+    # fnames = list(map(str, range(ensemble_size)))
+    # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
+
+    # opt 2
+
+    quench=quench_mixed_optimizer
+    opt_params = RUN_PARAMETERS_MIXED_OPTIMIZER_32
     opt_name= opt_params['name']
     opt_params.pop('name', None)
     fnames = list(map(str, range(ensemble_size)))
     quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
-    print(fnames)

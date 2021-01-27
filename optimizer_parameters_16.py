@@ -113,5 +113,5 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16 = {
     # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
     "conv_tol":  1e-8,
     # convexity factor  addition to make it more convex
-    "conv_factor": 2,
+    "conv_factor": 2
 }
