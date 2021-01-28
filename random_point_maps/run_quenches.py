@@ -1,4 +1,4 @@
-from optimizer_parameters_32 import RUN_PARAMETERS_CGDESCENT_32, RUN_PARAMETERS_CVODE_32, RUN_PARAMETERS_CVODE_32_TEST, RUN_PARAMETERS_CVODE_EXACT_32, RUN_PARAMETERS_CVODE_EXACT_LOWER_32, RUN_PARAMETERS_CVODE_RTOL_1e_m6, RUN_PARAMETERS_CVODE_RTOL_1e_m7, RUN_PARAMETERS_LBFGS_M_1_32, RUN_PARAMETERS_LBFGS_M_4_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL, RUN_PARAMETERS_MODIFIED_FIRE_32, RUN_PARAMETERS_MXOPT_RTOL_1e_m6, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T100, RUN_PARAMETERS_MXOPT_RTOL_1e_m7
+from optimizer_parameters_32 import RUN_PARAMETERS_CGDESCENT_32, RUN_PARAMETERS_CVODE_32, RUN_PARAMETERS_CVODE_32_TEST, RUN_PARAMETERS_CVODE_EXACT_32, RUN_PARAMETERS_CVODE_EXACT_LOWER_32, RUN_PARAMETERS_CVODE_RTOL_1e_m6, RUN_PARAMETERS_CVODE_RTOL_1e_m7, RUN_PARAMETERS_LBFGS_M_1_32, RUN_PARAMETERS_LBFGS_M_4_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2, RUN_PARAMETERS_MODIFIED_FIRE_32, RUN_PARAMETERS_MXOPT_RTOL_1e_m6, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T100, RUN_PARAMETERS_MXOPT_RTOL_1e_m7
 from optimizer_parameters_16 import RUN_PARAMETERS_CGDESCENT_16, RUN_PARAMETERS_CVODE_16, RUN_PARAMETERS_CVODE_EXACT_16, RUN_PARAMETERS_CVODE_EXACT_LOWER_16, RUN_PARAMETERS_LBFGS_M_1_16, RUN_PARAMETERS_LBFGS_M_4_16, RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16, RUN_PARAMETERS_MODIFIED_FIRE_16
 from optimizer_parameters import *
 from utils.cell_scale import get_box_length, get_ncellsx_scale
@@ -54,7 +54,10 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
     except:
         print("exception occured")
         # if exception occurs, treat as failure. this is for rattlers
-        return (quench_coords, False, 0, 0, 0)
+        # not enough failures occur that it would make a difference to not just assume this never happens
+        # but we shoudl switch this out
+        # but jic
+        return (quench_coords, False, 0, 0, 0, 0, 0)
 
     # This exists because some runs don't have hessian evaluations
     try:
@@ -62,7 +65,18 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
     except:
         ret['nhev']=0
 
-    results = (ret.coords, ret.success, ret.nfev, ret.nsteps, ret.nhev)
+    # mixed optimizer statistics
+    try:
+        ret['n_phase_1']
+    except:
+        ret['n_phase_1'] = 0
+    # mixed optimizer statistics
+    try:
+        ret['n_phase_2']
+    except:
+        ret['n_phase_2'] = 0
+
+    results = (ret.coords, ret.success, ret.nfev, ret.nsteps, ret.nhev, ret.n_phase_1, ret.n_phase_2)
     return results
 
 
@@ -94,8 +108,8 @@ def quench_multiple(foldpath, sub_fold_name, fnames, output_dir,
         print('quenching ' + str(index) + ' out of ' + str(total_quenches))
         
         results = quench_single_inverse_power(fname, foldpath, sub_fold_name, optimizer, opt_param_dict)
-        final_coords, success, nfev, nsteps, nhev = results
-        heuristics_dict = {'success': success, 'nfev': nfev, 'nsteps':nsteps, 'nhev':nhev}
+        final_coords, success, nfev, nsteps, nhev, n_phase_1, n_phase_2 = results
+        heuristics_dict = {'success': success, 'nfev': nfev, 'nsteps':nsteps, 'nhev':nhev, 'n_phase_1':n_phase_1, 'n_phase_2':n_phase_2}
         heuristics_dict.update(opt_param_dict)
         # save accordingly
         output_name = foldpath + '/' + sub_fold_name + '/' + output_dir + '/' + fname
@@ -110,7 +124,7 @@ def quench_multiple(foldpath, sub_fold_name, fnames, output_dir,
 if __name__== "__main__":
     foldname = "ndim=2phi=0.9seed=0n_part=64r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(1e2)
+    ensemble_size = int(5e3)
     # quench = quench_cvode_opt
     # opt_params = RUN_PARAMETERS_CVODE_EXACT_LOWER_32
     # opt_name= opt_params['name']
@@ -135,7 +149,7 @@ if __name__== "__main__":
     # opt 2
 
     quench=quench_mixed_optimizer
-    opt_params = RUN_PARAMETERS_MIXED_OPTIMIZER_32
+    opt_params = RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2
     opt_name= opt_params['name']
     opt_params.pop('name', None)
     fnames = list(map(str, range(ensemble_size)))

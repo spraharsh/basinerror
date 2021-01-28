@@ -49,6 +49,7 @@ def compare_runs_2d(fnames, foldpath, subfoldname, run_a, run_b, ctol):
     
     same_minimum_check_l = []
     for fname in fnames:
+        print(fname)
         minimum_a = np.loadtxt(data_path_a+ '/' + fname, delimiter=',')
         minimum_b = np.loadtxt(data_path_b+ '/' + fname, delimiter=',')
         boxed_minimum_a = minima_checker.box_reshape_coords(minimum_a)
@@ -56,17 +57,21 @@ def compare_runs_2d(fnames, foldpath, subfoldname, run_a, run_b, ctol):
         # get first index that is not a rattler
         rattlers_exist, rattlers = minima_checker._find_rattlers(minimum_a)
         rattlers_dont_exist = np.count_nonzero(rattlers==0) == 0
-        first_non_rattler = (np.argwhere(rattlers!=0).T)[0,0]
-        
-        # TODO: rewrite the CheckSameMinimum function
-        # load and make sure the particle being aligned is not a rattler later
-        # we're choosing -1 because that's always going to be of radius 1.4
-        #  particle
-        aligned_minimum_b = minima_checker.align_structures(boxed_minimum_a, 
+        print(rattlers)
+        # number of non rattlers to ensure we're not in a fluid state
+        n_non_rattlers = np.count_nonzero(rattlers)
+        # only do calculations if all particles aren't rattlers
+        if n_non_rattlers != 0:
+            first_non_rattler = (np.argwhere(rattlers!=0).T)[0,0]
+            # TODO: rewrite the CheckSameMinimum function
+            # load and make sure the particle being aligned is not a rattler later
+            # we're choosing -1 because that's always going to be of radius 1.4
+            #  particle
+            aligned_minimum_b = minima_checker.align_structures(boxed_minimum_a, 
                                                             boxed_minimum_b, part_ind=first_non_rattler)
-        same_minimum_check = minima_checker.check_same_structure(aligned_minimum_b,
+            same_minimum_check = minima_checker.check_same_structure(aligned_minimum_b,
                                                                  boxed_minimum_a, rattlers)
-        same_minimum_check_l.append(same_minimum_check)
+            same_minimum_check_l.append(same_minimum_check)
 
     fraction_same_minimum = np.mean(same_minimum_check_l)
     print(fraction_same_minimum)
@@ -79,6 +84,9 @@ def average_heuristics(foldpath, subfoldname, run_folder_name, fnames):
     nfev_list = []
     nhev_list = []
     nsteps_list= []
+    n_phase_1_list = []
+    n_phase_2_list = []
+    phase_heuristics_exist = True
     for fname in fnames:
         output_name = subfoldpath + '/' + run_folder_name + '/' + fname + 'heuristics.yaml'
         with open(output_name, 'r') as heur_file:
@@ -86,14 +94,28 @@ def average_heuristics(foldpath, subfoldname, run_folder_name, fnames):
             nfev_list.append(heuristics["nfev"])
             nhev_list.append(heuristics["nhev"])
             nsteps_list.append(heuristics["nsteps"])
+            try:
+                heuristics['n_phase_1']
+                heuristics['n_phase_2']
+            except:
+                phase_heuristics_exist = False
+            if phase_heuristics_exist:
+                n_phase_1_list.append(heuristics['n_phase_1'])
+                n_phase_2_list.append(heuristics['n_phase_2'])
             
     nfev_av = np.mean(nfev_list)
     nhev_av = np.mean(nhev_list)
     nsteps_av = np.mean(nsteps_list)
-    av_dict = {'nfev_av':nfev_av, 'nhev_av':nhev_av, 'nsteps_av':nsteps_av}
+    if phase_heuristics_exist:
+        n_phase_1_av = np.mean(n_phase_1_list)
+        n_phase_2_av = np.mean(n_phase_2_list)
+        av_dict = {'nfev_av':nfev_av, 'nhev_av':nhev_av, 'nsteps_av':nsteps_av, 'n_phase_1_av':n_phase_1_av,
+                   'n_phase_2_av': n_phase_2_av}
+    else:
+        av_dict = {'nfev_av':nfev_av, 'nhev_av':nhev_av, 'nsteps_av':nsteps_av}
     # with open(subfoldpath + '/' + run_folder_name +  'average_heuristics.yaml', 'w') as heur_av_file:
     #     yaml.dump(av_dict, heur_av_file)
-    return nfev_av, nhev_av, nsteps_av
+    return av_dict
 
 
 
@@ -109,9 +131,19 @@ def get_all_heuristics(fnames, foldpath, subfoldname, run_fold_name, correct_fol
     """
     fraction_wrong = 1 - (compare_runs_2d(fnames, foldpath, subfoldname, run_fold_name, correct_fold_name, ctol))
     percentage_wrong = fraction_wrong*100
-    nfev_av, nhev_av, nsteps_av = average_heuristics(foldpath, subfoldname, run_fold_name, fnames)
-    av_dict = {'percentage_wrong': float(percentage_wrong), 'nfev_av':float(nfev_av), 'nhev_av':float(nhev_av), 'nsteps_av':float(nsteps_av)}
-    
+    av_dict = average_heuristics(foldpath, subfoldname, run_fold_name, fnames)
+    av_dict['percentage_wrong'] = float(percentage_wrong)
+    # av_dict = {'percentage_wrong': float(percentage_wrong), 'nfev_av':float(nfev_av), 'nhev_av':float(nhev_av), 'nsteps_av':float(nsteps_av)}
+    nfev_av = av_dict['nfev_av']
+    nhev_av = av_dict['nhev_av']
+    nsteps_av = av_dict['nsteps_av']
+    try:
+        n_phase_1_av = av_dict['n_phase_1_av']
+        n_phase_2_av = av_dict['n_phase_2_av']
+        print('n_phase_1' , n_phase_1_av)
+        print('n_phase_2' , n_phase_2_av)
+    except:
+        print('no phase info')
     print("percentage wrong :" , fraction_wrong*100)
     print("nfev_av :", nfev_av)
     print("nhev_av :", nhev_av)
@@ -130,13 +162,13 @@ if __name__== "__main__":
     opt_name = 'cvode_exact'
     sub_fold_name = SUB_FOLD_NAME
     fold_path = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(2e3)
+    ensemble_size = int(5e3)
     fnames = list(map(str, range(ensemble_size)))
     # print(average_heuristics(sub_fold_path, opt_name, fnames))
     identification_tolerance = 1e-2
     # comparison checks
     # opt_a = 'mixed_optimizer_new_lower_tol_2'
-    opt_a = 'LBFGS_M4'
+    opt_a = 'mixed_optimizer_new_lower_tol'
     opt_b = 'cvode_exact_lower'
     # print(compare_runs_2d(fnames, fold_path, sub_fold_name, opt_a, opt_b, identification_tolerance))
     get_all_heuristics(fnames, fold_path, sub_fold_name, opt_a, opt_b, identification_tolerance)

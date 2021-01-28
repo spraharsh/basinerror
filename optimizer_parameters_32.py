@@ -66,7 +66,7 @@ RUN_PARAMETERS_CGDESCENT_32 = {
 # I also had to increase conv factor a bit because it messed up a few directions
 RUN_PARAMETERS_MIXED_OPTIMIZER_32 = {
     # parameters CVODE
-    "name": "mixed_optimizer",
+    "name": "mixed_optimizer_new",
     "tol": 1e-8,   # tolerance with which minimum is identified
     "rtol": 1e-4,   # relative local tolerance of path
     "atol": 1e-4,   # relative absolute tolerance of path
