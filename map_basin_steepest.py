@@ -40,9 +40,9 @@ QUENCH_FOLDER_NAME = 'scratch'
 
 # QUENCH_FOLDER_NAME = "lbfgs_m1_final"
 # QUENCH_FOLDER_NAME = "CG_descent_final"
-# QUENCH_FOLDER_NAME = 'cvode_exact'
+QUENCH_FOLDER_NAME = 'cvode_exact_initial'
 # QUENCH_FOLDER_NAME = 'cvode_exact_lower'
-MINIMA_DATABASE_NAME = 'minima_database.npy'
+MINIMA_DATABASE_NAME = 'minima_database_random_initial.npy'
 
 # things we need to define a run: foldername
 # parameter dictionary
@@ -50,7 +50,7 @@ MINIMA_DATABASE_NAME = 'minima_database.npy'
 
 def map_binary_inversepower(foldername,
                             particle_coords,
-                            coordarg, optimizer, parameter_dict):
+                            coordarg, optimizer, parameter_dict, random_coord_0=0, random_coord_1=-1):
     """
     Finds whether a point defined by particle_coord
     on the meshgrid correspond to a minimum or not for a 2d
@@ -63,10 +63,9 @@ def map_binary_inversepower(foldername,
     assert (sysparams.ndim.value == 2)
     minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
                                 delimiter=',')
-    quench_coords = minimum_coords.copy()
-    quench_coords[coordarg] = particle_coords[0]
-    quench_coords[coordarg + 1] = particle_coords[1]
-
+    quench_coords = initial_coords.copy()
+    quench_coords[coordarg] = particle_coords[random_coord_0]
+    quench_coords[coordarg + 1] = particle_coords[random_coord_1]
     # print(quench_coords, 'quench coords')
     # box length
     box_length = float(box_length)
@@ -74,7 +73,7 @@ def map_binary_inversepower(foldername,
     ncellx_scale = get_ncellsx_scale(hs_radii, boxv)
     potential = InversePower(sysparams.power.value,
                              sysparams.eps.value,
-                             use_cell_lists=True,
+                             use_cell_lists=False,
                              ndim=sysparams.ndim.value,
                              radii=hs_radii * 1.0,
                              boxvec=boxv)
@@ -138,8 +137,10 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, coordarg):
 
     # get necessary parameters from the folder
     box_length = float(box_length)
-    minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
-                                delimiter=',')
+    # minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
+    #                             delimiter=',')
+
+    center = initial_coords
 
     # sets the length of the x and y range over which
     # the mesh is calculated
@@ -154,14 +155,14 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, coordarg):
         #   minimum_coords[coordarg+1] + xylength/2, nmesh)
 
         # position minimum in the center
-        centered_x_of_min = minimum_coords[coordarg] + box_length / 2
-        centered_y_of_min = minimum_coords[coordarg + 1] + box_length / 2
+        centered_x_of_min = center[coordarg] + box_length / 2
+        centered_y_of_min = center[coordarg + 1] + box_length / 2
 
         x_range = centered_x_of_min + np.linspace(0, box_length, nmesh)
         y_range = centered_y_of_min + np.linspace(0, box_length, nmesh)
     else:
-        x_range = np.array([minimum_coords[coordarg]])
-        y_range = np.array([minimum_coords[coordarg + 1]])
+        x_range = np.array([center[coordarg]])
+        y_range = np.array([center[coordarg + 1]])
     np.savetxt(BASE_DIRECTORY + '/' + foldnameInversePower + 'xrange.txt',
                x_range,
                delimiter=',')
@@ -203,7 +204,7 @@ def map_pointset_loop(foldname,
     potential = InversePower(sysparams.power.value,
                              sysparams.eps.value,
                              use_cell_lists=False,
-                             ndim=sysparams.ndim.value,0
+                             ndim=sysparams.ndim.value,
                              radii=hs_radii * 1.0,
                              boxvec=[box_length, box_length])
     minima_container = CheckSameMinimum(
@@ -266,10 +267,10 @@ def map_pointset_loop(foldname,
 
 
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coordarg = 0
     # set nmesh =1
-    nmesh = 10
+    nmesh = 250
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5,
                                       coordarg)
     # th = np.array(list(map(list, pointset))).T
@@ -283,7 +284,7 @@ if __name__ == "__main__":
     # defining parameter for run
     optimizer = quench_cvode_opt
     identification_tolerance = 1e-2
-    parameter_dict = op.RUN_PARAMETERS_CVODE_8
+    parameter_dict = op32.RUN_PARAMETERS_CVODE_EXACT_LOWER_32
     optimizer_parameters = parameter_dict.copy()
     # important to remove name
     optimizer_parameters.pop('name', None)
