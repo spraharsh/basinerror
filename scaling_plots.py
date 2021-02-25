@@ -45,8 +45,13 @@ nfev_LBFGS_M4 = [61, 112, 167, 283]
 
 
 
+
+
+
+lw = 4
 plt.plot(n_vals, nfev_cv_ht, color="tab:blue", marker = 'o', label="CVODE high tol")
-plt.plot(n_vals, nfev_our_method, color="tab:orange", marker = 'o', label="our method")
+# Thickness change
+plt.plot(n_vals, nfev_our_method, color="tab:orange", linewidth=lw, marker = 'o', label="our method")
 plt.plot(n_vals, nfev_fire, color="tab:green", marker = 'o', label="fire")
 plt.plot(n_vals, nfev_CG, color="tab:red", marker = 'o', label="CG")
 plt.plot(n_vals, nfev_LBFGS_M1, color="tab:purple", marker = 'o', label="LBFGS_M1")
@@ -54,18 +59,19 @@ plt.plot(n_vals, nfev_LBFGS_M4, color="tab:brown", marker = 'o', label="LBFGS_M4
 plt.legend(loc="upper left")
 plt.xlabel(r'Number of particles ($N$)')
 plt.ylabel(r'gradient evaluations')
-plt.savefig('nfevvsN.pdf')
+plt.savefig('nfevvsN_new_thick.pdf')
 plt.show()
 
 
 plt.plot(n_vals, error_cv_ht, color="tab:blue", marker = 'o', label="CVODE high tol")
-plt.plot(n_vals, error_our_method, color="tab:orange", marker = 'o', label="our method")
+# Thickness change
+plt.plot(n_vals, error_our_method, color="tab:orange",  linewidth=lw,  marker = 'o', label="our method")
 plt.plot(n_vals, error_fire, color="tab:green", marker = 'o', label="fire")
 plt.plot(n_vals, error_CG, color="tab:red", marker = 'o', label="CG")
 plt.plot(n_vals, error_LBFGS_M1, color="tab:purple", marker = 'o', label="LBFGS_M1")
 plt.plot(n_vals, error_LBFGS_M4, color="tab:brown", marker = 'o', label="LBFGS_M4")
-plt.legend(loc="upper left")
+plt.legend(loc="right")
 plt.xlabel(r'Number of particles ($N$)')
 plt.ylabel(r'Error (%)')
-plt.savefig('errorvsN.pdf')
+plt.savefig('errorvsN_new_thick.pdf')
 plt.show()
