@@ -3,6 +3,7 @@ Maps the basin using the steepest descent algorithm. The accuracy of the mapping
 Note that our goal is to return the minimum given by the trajectory of the solution to d x/ d t = - \grad{E} (check the truth of this statement)
 """
 
+from random_vectors import VEC_8_0, VEC_8_1
 from matplotlib.pyplot import sca
 import numpy as np
 import os
@@ -42,7 +43,7 @@ QUENCH_FOLDER_NAME = 'scratch'
 # QUENCH_FOLDER_NAME = "CG_descent_final"
 QUENCH_FOLDER_NAME = 'cvode_exact_initial'
 # QUENCH_FOLDER_NAME = 'cvode_exact_lower'
-MINIMA_DATABASE_NAME = 'minima_database_test_5.npy'
+MINIMA_DATABASE_NAME = 'minima_database_test_7.npy'
 
 # things we need to define a run: foldername
 # parameter dictionary
@@ -67,8 +68,12 @@ def map_binary_inversepower(foldername,
     print(initial_coords, 'initial')
 
     
-    quench_coords[random_coord_0] = particle_coords[0]
-    quench_coords[random_coord_1] = particle_coords[1]
+
+
+    quench_coords = quench_coords + particle_coords[0]*VEC_8_0 + particle_coords[1]*VEC_8_1
+
+    
+    
     print(quench_coords, 'quench')
     # print(quench_coords, 'quench coords')
     # box length
@@ -146,10 +151,10 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, random_coord_0=0, rando
     #                             delimiter=',')
 
     center = initial_coords
+    center = [-box_length/2, -box_length/2]
 
     # sets the length of the x and y range over which
     # the mesh is calculated
-    xylength = boxlscale * box_length
 
     #  This division in cases is because linspace doesn't
     #  give the right answer for n = 1
@@ -177,9 +182,9 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, random_coord_0=0, rando
 
 
     pointset = []
-
-    for x in x_range:
-        for y in y_range:
+    # 
+    for x in x_range[:-1]:
+        for y in y_range[:-1]:
             pointset.append((x % box_length, y % box_length))
     return pointset
 
@@ -272,12 +277,15 @@ def map_pointset_loop(foldname,
 
 if __name__ == "__main__":
     foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
-    coord_arg_0 = -1
+    coord_arg_0 = 0
     coord_arg_1 = 1
     # set nmesh =1
     nmesh = 100
     pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5, coord_arg_0, coord_arg_1)
+
     print(pointset)
+
+
     # th = np.array(list(map(list, pointset))).T
 
     # folders
