@@ -3,7 +3,7 @@ Maps the basin using the steepest descent algorithm. The accuracy of the mapping
 Note that our goal is to return the minimum given by the trajectory of the solution to d x/ d t = - \grad{E} (check the truth of this statement)
 """
 
-from random_vectors import VEC_8_0, VEC_8_1
+from random_vectors import VEC_8_0, VEC_8_1, VEC_8_2,  VEC_16_0, VEC_16_1, VEC_16_2, VEC_32_0, VEC_32_1, VEC_32_2
 from matplotlib.pyplot import sca
 import numpy as np
 import os
@@ -27,7 +27,6 @@ import optimizer_parameters_32 as op32
 from pele.utils.cell_scale import get_ncellsx_scale
 
 
-
 import write_run_data_to_file
 from write_run_data_to_file import write_run_data_to_file
 
@@ -49,9 +48,10 @@ MINIMA_DATABASE_NAME = 'minima_database_test_7.npy'
 # parameter dictionary
 # name of the run
 
+
 def map_binary_inversepower(foldername,
                             particle_coords,
-                            optimizer, parameter_dict, random_coord_0=0, random_coord_1=-1):
+                            optimizer, parameter_dict, random_coord_0=0, random_coord_1=-1, z=0):
     """
     Finds whether a point defined by particle_coord
     on the meshgrid correspond to a minimum or not for a 2d
@@ -65,15 +65,10 @@ def map_binary_inversepower(foldername,
     minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
                                 delimiter=',')
     quench_coords = initial_coords.copy()
-    print(initial_coords, 'initial')
 
-    
+    quench_coords = quench_coords + \
+        particle_coords[0]*VEC_8_0 + particle_coords[1]*VEC_8_1 + z*VEC_8_2*box_length
 
-
-    quench_coords = quench_coords + particle_coords[0]*VEC_8_0 + particle_coords[1]*VEC_8_1
-
-    
-    
     print(quench_coords, 'quench')
     # print(quench_coords, 'quench coords')
     # box length
@@ -86,7 +81,7 @@ def map_binary_inversepower(foldername,
                              ndim=sysparams.ndim.value,
                              radii=hs_radii * 1.0,
                              boxvec=boxv)
-    
+
     # ret = quench_mixed_optimizer(potential,
     #                              quench_coords,  # make sure right coords are being passed
     #                              T=10,
@@ -108,19 +103,17 @@ def map_binary_inversepower(foldername,
         print(initial_coords, 'coords')
         print(len(quench_coords))
         raise Exception('failure')
-    
-    
-    
-    
+
     # ret = lbfgs_cpp(quench_coords, potential, tol=1e-8, M=1)
 
     # This exists because some runs don't have hessian evaluations
     try:
         ret['nhev']
     except:
-        ret['nhev']=0
+        ret['nhev'] = 0
     coordarg = 0
-    results = (ret.coords, ret.success, coordarg, ret.nfev, ret.nsteps, ret.nhev)
+    results = (ret.coords, ret.success, coordarg,
+               ret.nfev, ret.nsteps, ret.nhev)
     # the reason the potential is being passed is because quench coords needs the potential to figure out what to do
     return results
 
@@ -180,24 +173,22 @@ def construct_point_set_2d(foldername, nmesh, boxlscale, random_coord_0=0, rando
                x_range,
                delimiter=',')
 
-
     pointset = []
-    # 
+    #
     for x in x_range[:-1]:
         for y in y_range[:-1]:
             pointset.append((x % box_length, y % box_length))
     return pointset
 
 
-
-def map_pointset_loop(foldname,
-                      pointset,
-                      optimizer,
-                      parameter_dict,
-                      ctol=1e-2,
-                      ndim=2,
-                      use_minima_database=True,
-                      minima_database_path=None, coord_arg_0=0, coord_arg_1=1):
+def map_pointset_loop_xy(foldname,
+                         pointset,
+                         optimizer,
+                         parameter_dict,
+                         ctol=1e-2,
+                         ndim=2,
+                         use_minima_database=True,
+                         minima_database_path=None, coord_arg_0=0, coord_arg_1=1, z=0):
     """ Checks a bunch of points if they match to a minimum by using a for loop
     """
     is_same_minimum_list = []
@@ -240,7 +231,7 @@ def map_pointset_loop(foldname,
     nhevlist = []
     for index, point in enumerate(pointset):
         res = map_binary_inversepower(foldname, point,
-                                      optimizer, parameter_dict, random_coord_0=coord_arg_0, random_coord_1=coord_arg_1)
+                                      optimizer, parameter_dict, random_coord_0=coord_arg_0, random_coord_1=coord_arg_1, z=z)
         minima_container.add_minimum(res[0], point, res[2])
         # print(index)
         # print(minima_container.nrattlermin, 'nrattlermin')
@@ -253,10 +244,10 @@ def map_pointset_loop(foldname,
     # print(np.average(nstepslist), 'number of steps')
     # print(np.average(nstepslist), 'number of steps')
     # print(np.average(nhevlist), "number of hessian evaluations")
-    
+
     # print(minima_container.orderparamlist)
 
-    foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME
+    foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME + '/z_data/' + str(z)
     os.makedirs(foldpathdata, exist_ok=True)
     minima_container.dump_map(foldpathdata)
 
@@ -264,52 +255,54 @@ def map_pointset_loop(foldname,
     run_diagnostics['nfev'] = float(np.average(nfevlist))
     run_diagnostics['nhev'] = float(np.average(nhevlist))
     run_diagnostics['nsteps'] = float(np.average(nstepslist))
-    
-    
+
     # print(minima_container.initial_coords_list)
     # print(minima_container.orderparamlist)
     # print(minima_container.orderparamlist)
     return run_diagnostics, is_same_minimum_list, resultlist
 
 
-
-
-
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coord_arg_0 = 0
     coord_arg_1 = 1
     # set nmesh =1
-    nmesh = 100
-    pointset = construct_point_set_2d(foldnameInversePower, nmesh, 0.5, coord_arg_0, coord_arg_1)
+    nmesh = 200
+    z_frames = 10
+
+    pointset = construct_point_set_2d(
+        foldnameInversePower, nmesh, 0.5, coord_arg_0, coord_arg_1)
 
     print(pointset)
-
 
     # th = np.array(list(map(list, pointset))).T
 
     # folders
     data_location = BASE_DIRECTORY + '/' + foldnameInversePower
+    (hs_radii, initial_coords, box_length) = load_secondary_params(data_location)
     minima_database_path = data_location + '/' + MINIMA_DATABASE_NAME
-    
-    
+
+    z_range = np.linspace(0, 1, z_frames)
+
     # defining parameter for run
     optimizer = quench_cvode_opt
     identification_tolerance = 1e-2
-    parameter_dict = op.RUN_PARAMETERS_CVODE_EXACT_8
+    parameter_dict = op16.RUN_PARAMETERS_CVODE_EXACT_16
     optimizer_parameters = parameter_dict.copy()
     # important to remove name
     optimizer_parameters.pop('name', None)
     # run over the map
-    res = map_pointset_loop(foldnameInversePower,
-                            pointset,
-                            optimizer,
-                            optimizer_parameters,
-                            ctol=identification_tolerance,
-                            ndim=2,
-                            use_minima_database=True,
-                            minima_database_path=minima_database_path,
-                            coord_arg_0=coord_arg_0, coord_arg_1=coord_arg_1)
+
+    for z in z_range:
+        res = map_pointset_loop_xy(foldnameInversePower,
+                                   pointset,
+                                   optimizer,
+                                   optimizer_parameters,
+                                   ctol=identification_tolerance,
+                                   ndim=2,
+                                   use_minima_database=True,
+                                   minima_database_path=minima_database_path,
+                                   coord_arg_0=coord_arg_0, coord_arg_1=coord_arg_1, z=z)
 
     # print(res)
     # # boollist = np.loadtxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_fire.txt')
@@ -321,23 +314,20 @@ if __name__ == "__main__":
     # plt.show()
     # # print(reslist)
 
-
     sysparams = load_params(data_location)
-
     # save all parameters from run
     run_diagnostics = res[0]
     run_diagnostics['identification tolerance'] = identification_tolerance
     run_diagnostics['nmesh'] = nmesh
     run_diagnostics['ndim'] = sysparams.ndim.value
     run_diagnostics['nparticles'] = sysparams.n_part.value
-    run_diagnostics['run data location'] = data_location + '/' + QUENCH_FOLDER_NAME
-
-    
+    run_diagnostics['run data location'] = data_location + \
+        '/' + QUENCH_FOLDER_NAME
 
     opt_name = parameter_dict['name'].replace(" ", "_")
     # write run data to two different locations
-    write_run_data_to_file(parameter_dict, run_diagnostics, folder_location=data_location, name=opt_name + '.yaml')
+    write_run_data_to_file(parameter_dict, run_diagnostics,
+                           folder_location=data_location, name=opt_name + '.yaml')
     write_run_data_to_file(parameter_dict, run_diagnostics,
                            folder_location='/home/praharsh/Dropbox/research/bv-libraries/basinerror/run_diagnostic_data',
-                           name = opt_name + '.yaml')
-
+                           name=opt_name + '.yaml')
