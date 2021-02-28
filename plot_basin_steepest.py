@@ -18,8 +18,8 @@ from accuracy_check import correct_minima_check, percentage_same
 import os
 np.random.seed(0)
 
-GLASBEY_2000_LENGTH = len(np.loadtxt('glasbey2000.csv', delimiter=','))
-glasbey2000 = np.loadtxt('glasbey2000.csv', delimiter=',')
+GLASBEY_2000_LENGTH = len(np.loadtxt('glasbey20000.csv', delimiter=','))
+glasbey2000 = np.loadtxt('glasbey20000.csv', delimiter=',')
 
 def extract_min_max_spacing(coordslist):
     """ Extracts spacing data from a 2d coordinate list
@@ -80,7 +80,7 @@ def generate_animation_plots(data_folder, foldname):
 if __name__ == "__main__":
 
     # load data
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
     # quench_type = "cvode_high_tol_final"
     # quench_type = "fire_final"
@@ -94,7 +94,6 @@ if __name__ == "__main__":
     # quench_type = 'mxopt_cv_1e-2_final'
     # the below run is actually cv = 1e-8
     # quench_type = 'mxopt_cv_0_final'
-    
 
 
     quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
@@ -102,13 +101,13 @@ if __name__ == "__main__":
     
     data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
 
-    z_list = os.listdir(data_fold_path + '/z_data')
+    z_list = os.listdir(data_fold_path + '/z_data_30_l6')
     print(z_list)
     print('loading data from')
     print(data_fold_path)
     for z in z_list:
-        data = CheckSameMinimum.load_map(data_fold_path + '/z_data/' + z,
-                                         max_minima_l=2000,
+        data = CheckSameMinimum.load_map(data_fold_path + '/z_data_30_l6/' + z,
+                                         max_minima_l=200000,
                                          minima_database_path=minima_database_path)
     
         initial_coords = data.initial_coords
@@ -141,6 +140,7 @@ if __name__ == "__main__":
         vmax = len(cmaplist)-1
         print(vmax, "vmax")
         print(vmax, 'glasbey length')
+        print(z)
         vmin = 0
         # cmap = glasbey2000
         # print(len(cc.glasbey_bw), 'length of glasbey')
@@ -158,10 +158,10 @@ if __name__ == "__main__":
         plt.xlabel(r'$x$ ($L$)')
         plt.ylabel(r'$y$ ($L$)')
         # plt.title(quench_type + ' (L = length of box)')
-        savedir = data_fold_path + '/z_plots'
+        savedir = data_fold_path + '/z_plots_30_l6'
         os.makedirs(savedir, exist_ok=True)
         plt.axis('off')
-        plt.savefig(savedir + '/' + z + '.pdf')
+        plt.savefig(savedir + '/' + z + '.pdf', bbox_inches='tight',pad_inches = 0)
         plt.show()
     # print(percentage_same('cvode_exact', 'cvode_exact_lower', foldnameInversePower))
 # if __name__ == "__main__":

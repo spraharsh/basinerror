@@ -67,7 +67,7 @@ def map_binary_inversepower(foldername,
     quench_coords = initial_coords.copy()
 
     quench_coords = quench_coords + \
-        particle_coords[0]*VEC_16_0 + particle_coords[1]*VEC_16_1 + z*VEC_16_2
+        particle_coords[0]*VEC_8_0 + particle_coords[1]*VEC_8_1 + z*VEC_8_2
 
     print(quench_coords, 'quench')
     # print(quench_coords, 'quench coords')
