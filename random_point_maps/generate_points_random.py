@@ -112,13 +112,14 @@ def generate_save_random_configurations(foldpath, ensemble_size, seed_entropy=No
     assert(len(seeds) == ensemble_size)
     print(seed_entropy)
     
-    ensemble_path = run_foldpath + '/ensemble'
+    ensemble_path = run_foldpath + 'ensemble'
     os.makedirs(ensemble_path, exist_ok=True)
     
     for seed_coords in seeds:
         coords = generate_random_configuration_single(box_length, params.n_part.value, params.ndim.value, seed_coords)
         # save according to the spawn key
         np.savetxt(ensemble_path + '/' + str(seed_coords.spawn_key[0]), coords)
+        print(ensemble_path + '/' + str(seed_coords.spawn_key[0]))
     return 0
 
 def load_configuration(foldpath, subfoldname, spawn_key):
@@ -135,19 +136,21 @@ def load_configuration(foldpath, subfoldname, spawn_key):
 
 
 
+
+
+
+
+
+
+
 if __name__=="__main__":
-    foldname = "ndim=2phi=0.9seed=0n_part=64r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(5e4)
+    ensemble_size = int(1e5)
     # generate_random_radii_inverse_power()
     generate_save_random_configurations(foldpath, ensemble_size)
     # print(load_configuration(foldpath, SUB_FOLD_NAME, 2))
-    
     # configs2 =load_configurations(foldpath, ensemble_size)
-
-
-
-
 
 
 

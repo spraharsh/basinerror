@@ -29,14 +29,14 @@ import matplotlib.pyplot as plt
 # New data random configs
 n_vals = [8, 16, 32, 64]
 
-error_cv_ht = [0.6, 5.8, 8.8, 7.3]
+# error_cv_ht = [0.6, 5.8, 8.8, 7.3]
 error_our_method = [2.4, 5.8, 9.2, 13.3]
 error_fire = [35, 67, 91, 99.4]
 error_CG = [46, 76, 95, 99.7]
 error_LBFGS_M1 =[81, 98, 100, 100]
 error_LBFGS_M4 = [61, 88, 99, 100]
 
-nfev_cv_ht = [271, 507, 987, 1382]
+# nfev_cv_ht = [271, 507, 987, 1382]
 nfev_our_method = [182, 276, 402, 835]
 nfev_fire = [205, 318, 491, 878]
 nfev_CG = [92, 179, 312, 600]
@@ -49,7 +49,7 @@ nfev_LBFGS_M4 = [61, 112, 167, 283]
 
 
 lw = 4
-plt.plot(n_vals, nfev_cv_ht, color="tab:blue", marker = 'o', label="CVODE high tol")
+# plt.plot(n_vals, nfev_cv_ht, color="tab:blue", marker = 'o', label="CVODE high tol")
 # Thickness change
 plt.plot(n_vals, nfev_our_method, color="tab:orange", linewidth=lw, marker = 'o', label="our method")
 plt.plot(n_vals, nfev_fire, color="tab:green", marker = 'o', label="fire")
@@ -59,11 +59,11 @@ plt.plot(n_vals, nfev_LBFGS_M4, color="tab:brown", marker = 'o', label="LBFGS_M4
 plt.legend(loc="upper left")
 plt.xlabel(r'Number of particles ($N$)')
 plt.ylabel(r'gradient evaluations')
-plt.savefig('nfevvsN_new_thick.pdf')
+plt.savefig('nfevvsN_new_thick_transp.png', dpi=400, transparent=True)
 plt.show()
 
 
-plt.plot(n_vals, error_cv_ht, color="tab:blue", marker = 'o', label="CVODE high tol")
+# plt.plot(n_vals, error_cv_ht, color="tab:blue", marker = 'o', label="CVODE high tol")
 # Thickness change
 plt.plot(n_vals, error_our_method, color="tab:orange",  linewidth=lw,  marker = 'o', label="our method")
 plt.plot(n_vals, error_fire, color="tab:green", marker = 'o', label="fire")
@@ -73,5 +73,5 @@ plt.plot(n_vals, error_LBFGS_M4, color="tab:brown", marker = 'o', label="LBFGS_M
 plt.legend(loc="right")
 plt.xlabel(r'Number of particles ($N$)')
 plt.ylabel(r'Error (%)')
-plt.savefig('errorvsN_new_thick.pdf')
+plt.savefig('errorvsN_new_thick_transp.png', dpi=400, transparent=True)
 plt.show()

@@ -20,6 +20,15 @@ np.random.seed(0)
 
 GLASBEY_2000_LENGTH = len(np.loadtxt('glasbey20000.csv', delimiter=','))
 glasbey2000 = np.loadtxt('glasbey20000.csv', delimiter=',')
+glasbey2000 = glasbey2000[15:]
+GLASBEY_2000_LENGTH = len(glasbey2000)
+glasbeyargs = np.arange(GLASBEY_2000_LENGTH)
+print(glasbeyargs)
+rng = np.random.default_rng(seed=1)
+# np.random.shuffle(glasbeyargs)
+
+glasbey2000 = glasbey2000[glasbeyargs]
+
 
 def extract_min_max_spacing(coordslist):
     """ Extracts spacing data from a 2d coordinate list
@@ -80,7 +89,7 @@ def generate_animation_plots(data_folder, foldname):
 if __name__ == "__main__":
 
     # load data
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
     # quench_type = "cvode_high_tol_final"
     # quench_type = "fire_final"
@@ -97,27 +106,43 @@ if __name__ == "__main__":
 
 
     quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
+    # quench_type = 'mxopt_2'
+    # quench_type = 'cg_descent'
+    # quench_type = 'lbfgs_m1_2'
+    # quench_type = 'lbfgs_m4_2'
+    quench_type = 'fire_2'
+    # quench_type = 'cvode_exact_initial_2'
+    # quench_type= ''
+
+    # quench_type = "cvode_ex"
     # quench_type = 'correct_minima'
     
     data_fold_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + quench_type
 
-    z_list = os.listdir(data_fold_path + '/z_data_30_l6')
+    z_list = os.listdir(data_fold_path + '/z_data_30_l6_2')
     print(z_list)
+    minima_l = 200000
     print('loading data from')
     print(data_fold_path)
     for z in z_list:
-        data = CheckSameMinimum.load_map(data_fold_path + '/z_data_30_l6/' + z,
-                                         max_minima_l=200000,
+        data = CheckSameMinimum.load_map(data_fold_path + '/z_data_30_l6_2/' + z,
+                                         max_minima_l=minima_l,
                                          minima_database_path=minima_database_path)
-    
+
+        print(np.load(data_fold_path+ '/z_data_30_l6_2/' + z + '/order_params200000.npy'))
+        print(len(data.minimalist))
+        print(data.minimalist)
+        print(data.initial_coords)
+        print(minima_database_path)
         initial_coords = data.initial_coords
         order_params = data.order_params
         minimalist = data.minimalist
     
-
+        print(order_params)
         # set min max values
         vmax = GLASBEY_2000_LENGTH
-        print(GLASBEY_2000_LENGTH, 'glasbey length')
+        # print(GLASBEY_2000_LENGTH, 'glasbey length')
+        print(data)
         vmin = 0
         res = extract_min_max_spacing(initial_coords)
     
@@ -131,8 +156,6 @@ if __name__ == "__main__":
         d = lambda x: x / box_length
 
         # print to order params txt to inspect
-        print(op_2d)
-        np.savetxt('order_params_cut32.txt', op_2d, delimiter=',', fmt = '%1.3d')
     
         cmaplist = glasbey2000
         cmap = colors.ListedColormap(cmaplist)
@@ -158,12 +181,12 @@ if __name__ == "__main__":
         plt.xlabel(r'$x$ ($L$)')
         plt.ylabel(r'$y$ ($L$)')
         # plt.title(quench_type + ' (L = length of box)')
-        savedir = data_fold_path + '/z_plots_30_l6'
+        savedir = data_fold_path + '/z_plots_30_l6_2'
         os.makedirs(savedir, exist_ok=True)
         plt.axis('off')
-        plt.savefig(savedir + '/' + z + '.pdf', bbox_inches='tight',pad_inches = 0)
+        plt.savefig(savedir + '/' + z + '.svg', bbox_inches='tight',pad_inches = 0)
         plt.show()
-    # print(percentage_same('cvode_exact', 'cvode_exact_lower', foldnameInversePower))
+    print(percentage_same('cvode_exact_initial_2/z_data_30_l6_2/0.0', quench_type + '/z_data_30_l6_2/0.0', foldnameInversePower, minima_l=minima_l))
 # if __name__ == "__main__":
 #     ncolors = 30
 #     gradient = np.linspace(0, 1, ncolors)

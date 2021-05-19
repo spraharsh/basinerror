@@ -13,7 +13,7 @@ CORRECT_MINIMA_FOLDER = 'correct_minima'
 
 
 
-def percentage_same(minima_path_a, minima_path_b, foldnameInversePower, ctol=1e-3):
+def percentage_same(minima_path_a, minima_path_b, foldnameInversePower, ctol=1e-3, minima_l=2000):
     """
     Checks the percentage of minima that are same in path a and path b, and returns the fraction of minima
     that are not the same.
@@ -21,8 +21,8 @@ def percentage_same(minima_path_a, minima_path_b, foldnameInversePower, ctol=1e-
     abs_path_a = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + minima_path_a
     abs_path_b = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + minima_path_b
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
-    data_a = CheckSameMinimum.load_map(abs_path_a, max_minima_l=2000, minima_database_path=minima_database_path)
-    data_b = CheckSameMinimum.load_map(abs_path_b, max_minima_l=2000, minima_database_path=minima_database_path)
+    data_a = CheckSameMinimum.load_map(abs_path_a, max_minima_l=minima_l, minima_database_path=minima_database_path)
+    data_b = CheckSameMinimum.load_map(abs_path_b, max_minima_l=minima_l, minima_database_path=minima_database_path)
     op_a_arr = data_a.order_params
     op_b_arr = data_b.order_params
     return (sum(op_a_arr!=op_b_arr))/len(op_b_arr) 

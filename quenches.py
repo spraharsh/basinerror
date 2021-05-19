@@ -57,7 +57,7 @@ def quench_steepest(x0, pot, tol=1e-4, nsteps=10000, stepsize=1e-4):
     return res
 
 
-def quench_cvode_opt(x0, pot, nsteps=100000, **kwargs):
+def quench_cvode_opt(x0, pot, nsteps=1000000, **kwargs):
     """ "Subroutine" for quenching steepest descent, add subtract yada yada
         to control how information gets returned, basically simply passing
         pot, x0 with these default parameters should give identical results
@@ -109,6 +109,7 @@ if __name__ == "__main__":
     conv_factor = 2
     nsteps = 2000
     H0 = 1e-10
+    
 
     # Set up the coordinates and potential
 

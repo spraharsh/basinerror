@@ -102,7 +102,6 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
         disc_right_up = sg.Point(coordinates[0]+1,coordinates[1]+1.).buffer(radius)
         disc_right_down = sg.Point(coordinates[0]+1,coordinates[1]-1.).buffer(radius)
         
-        
         alpha = 0.3
         disc_color = glasbey[particle]
         border_color = 'k'
@@ -116,10 +115,9 @@ def plot_configuration_2d(radii, configuration, box_length, figname):
         ax.add_patch(descartes.PolygonPatch(disc_right_up, fc =disc_color, ec= border_color, alpha=alpha))
         ax.add_patch(descartes.PolygonPatch(disc_right_down, fc =disc_color, ec= border_color, alpha=alpha))
 
-    plt.xlabel(r'x($L$)')
-    plt.ylabel(r'y($L$)')
-    print(figname)
-    plt.savefig(figname + '.pdf', dpi=300)
+    plt.axis('off')
+    
+    plt.savefig(figname + '.svg', dpi=300, bbox_inches='tight',pad_inches = 0)
     plt.show()
     
     
@@ -130,7 +128,7 @@ if __name__=="__main__":
     minima_number = 0
     minima_8 = [14, 42, 7]
     minima_16 = [106]
-    minima_32 = [30]
+    minima_32 = [30, 47]
 
     BASE_DIRECTORY_8 = "/home/praharsh/Dropbox/research/bv-libraries/basinerror/datainv/ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0/"
     configuration_list = []

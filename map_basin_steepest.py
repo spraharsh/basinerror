@@ -33,16 +33,10 @@ from write_run_data_to_file import write_run_data_to_file
 
 QUENCH_FOLDER_NAME = 'scratch'
 
-# QUENCH_FOLDER_NAME = "cvode_high_tol_final"
-# QUENCH_FOLDER_NAME = "fire_final"
+QUENCH_FOLDER_NAME = 'lbfgs_m4_2'
 
-# QUENCH_FOLDER_NAME = "lbfgs_m4_final"
-
-# QUENCH_FOLDER_NAME = "lbfgs_m1_final"
-# QUENCH_FOLDER_NAME = "CG_descent_final"
-QUENCH_FOLDER_NAME = 'cvode_exact_initial'
-# QUENCH_FOLDER_NAME = 'cvode_exact_lower'
 MINIMA_DATABASE_NAME = 'minima_database_test_8.npy'
+
 
 # things we need to define a run: foldername
 # parameter dictionary
@@ -67,9 +61,7 @@ def map_binary_inversepower(foldername,
     quench_coords = initial_coords.copy()
 
     quench_coords = quench_coords + \
-        particle_coords[0]*VEC_16_0 + particle_coords[1]*VEC_16_1 + z*VEC_16_2
-
-    print(quench_coords, 'quench')
+        particle_coords[0]*VEC_8_0 + particle_coords[1]*VEC_8_1 + z*VEC_8_2
     # print(quench_coords, 'quench coords')
     # box length
     box_length = float(box_length)
@@ -247,7 +239,7 @@ def map_pointset_loop_xy(foldname,
 
     # print(minima_container.orderparamlist)
 
-    foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME + '/z_data_30_l6/' + str(z)
+    foldpathdata = foldpath + '/' + QUENCH_FOLDER_NAME + '/z_data_30_l6_2/' + str(z)
     os.makedirs(foldpathdata, exist_ok=True)
     minima_container.dump_map(foldpathdata)
 
@@ -262,13 +254,16 @@ def map_pointset_loop_xy(foldname,
     return run_diagnostics, is_same_minimum_list, resultlist
 
 
+
+
+
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coord_arg_0 = 0
     coord_arg_1 = 1
     # set nmesh =1
     nmesh = 200
-    z_frames = 30
+    z_frames = 1
 
     pointset = construct_point_set_2d(
         foldnameInversePower, nmesh, 0.5, coord_arg_0, coord_arg_1)
@@ -283,12 +278,13 @@ if __name__ == "__main__":
     minima_database_path = data_location + '/' + MINIMA_DATABASE_NAME
 
     z_range = np.linspace(0, 6.0, z_frames)
-    print(z_range)
-
+    # print(z_range[20:])
+    z_range = z_range[0:]
     # defining parameter for run
-    optimizer = quench_cvode_opt
+
+    optimizer = lbfgs_cpp
     identification_tolerance = 1e-2
-    parameter_dict = op16.RUN_PARAMETERS_CVODE_EXACT_16
+    parameter_dict = op.RUN_PARAMETERS_LBFGS_M_4_8
     optimizer_parameters = parameter_dict.copy()
     # important to remove name
     optimizer_parameters.pop('name', None)

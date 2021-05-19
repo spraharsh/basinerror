@@ -66,7 +66,7 @@ class SystemParamInversePowerBinary(Enum):
     seed = 0
 
     # particle parameters
-    n_part = 64
+    n_part = 1024
     r1 = 1.0
     r2 = 1.4
     rstd1 = 0.05

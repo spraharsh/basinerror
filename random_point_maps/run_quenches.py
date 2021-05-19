@@ -10,7 +10,9 @@ import yaml
 from pele.potentials import InversePower
 from params import BASE_DIRECTORY, load_params
 from quenches import quench_LBFGS, quench_cvode_opt, quench_mixed_optimizer, quench_pycg_descent, quench_steepest
+from pele.potentials import Harmonic
 
+from timeit import default_timer as timer
 def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
                                 optimizer, opt_param_dict):
     """
@@ -47,6 +49,9 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
                              ndim=sysparams.ndim.value,
                              radii=radii * 1.0,
                              boxvec=boxv)
+
+    # quench_coords = [1., 1., 1.]
+    # potential = Harmonic(np.array([0.,0., 0.]), 1)
     
 
     try:
@@ -77,6 +82,7 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
         ret['n_phase_2'] = 0
 
     results = (ret.coords, ret.success, ret.nfev, ret.nsteps, ret.nhev, ret.n_phase_1, ret.n_phase_2)
+    print(quench_coords_path)
     return results
 
 
@@ -110,9 +116,13 @@ def quench_multiple(foldpath, sub_fold_name, fnames, output_dir,
         results = quench_single_inverse_power(fname, foldpath, sub_fold_name, optimizer, opt_param_dict)
         final_coords, success, nfev, nsteps, nhev, n_phase_1, n_phase_2 = results
         heuristics_dict = {'success': success, 'nfev': nfev, 'nsteps':nsteps, 'nhev':nhev, 'n_phase_1':n_phase_1, 'n_phase_2':n_phase_2}
+        print(heuristics_dict)
         heuristics_dict.update(opt_param_dict)
         # save accordingly
         output_name = foldpath + '/' + sub_fold_name + '/' + output_dir + '/' + fname
+        
+        print(output_name)
+        print("is output ")
         np.savetxt(output_name, final_coords)
         with open(output_name + 'heuristics.yaml', 'w') as heur_file:
             yaml.dump(heuristics_dict, heur_file)
@@ -122,9 +132,9 @@ def quench_multiple(foldpath, sub_fold_name, fnames, output_dir,
 
 
 if __name__== "__main__":
-    foldname = "ndim=2phi=0.9seed=0n_part=64r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(5e3)
+    ensemble_size = int(1e4)
     # quench = quench_cvode_opt
     # opt_params = RUN_PARAMETERS_CVODE_EXACT_LOWER_32
     # opt_name= opt_params['name']
@@ -133,7 +143,7 @@ if __name__== "__main__":
     # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
     # print(fnames)
     # quench = quench_cvode_opt
-    # opt_params = RUN_PARAMETERS_CVODE_EXACT_32
+    opt_params = RUN_PARAMETERS_CVODE_32
     # opt_name= opt_params['name']
     # opt_params.pop('name', None)
     # fnames = list(map(str, range(ensemble_size)))
@@ -145,12 +155,13 @@ if __name__== "__main__":
     # opt_params.pop('name', None)
     # fnames = list(map(str, range(ensemble_size)))
     # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
-
-    # opt 2
-
-    quench=quench_mixed_optimizer
-    opt_params = RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2
+    quench=quench_cvode_opt
+    # opt_params = RUN_PARAMETERS_CVODE_32
     opt_name= opt_params['name']
     opt_params.pop('name', None)
     fnames = list(map(str, range(ensemble_size)))
+    fnames = fnames[:1]
+    start = timer()
     quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
+    end = timer()
+    print(end-start)
