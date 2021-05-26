@@ -50,8 +50,6 @@ def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
                              radii=radii * 1.0,
                              boxvec=boxv)
 
-    # quench_coords = [1., 1., 1.]
-    # potential = Harmonic(np.array([0.,0., 0.]), 1)
     
 
     try:
@@ -159,6 +157,7 @@ if __name__== "__main__":
     # opt_params = RUN_PARAMETERS_CVODE_32
     opt_name= opt_params['name']
     opt_params.pop('name', None)
+    opt_params['sparse'] = True
     fnames = list(map(str, range(ensemble_size)))
     fnames = fnames[:1]
     start = timer()

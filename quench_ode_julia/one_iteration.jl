@@ -2,7 +2,7 @@ using DifferentialEquations
 using PyCall
 using LSODA
 using Sundials
-pyimport("pele.potentials")
+# pyimport("pele.potentials")
 
 """
 This function ideally defines an interface to the step
@@ -25,7 +25,6 @@ primary point of modification
 # needed for implicit solvers?
 
 dt: defines the step
-
 Returns
 -------------
 tnew: parametrized time
@@ -35,10 +34,14 @@ gradnew: new gradient
 
 we're not using the exclamation point because we want to import this in python
 """
+
+
 function one_iteration!(integrator)
     step!(integrator)
     (integrator.t, integrator.u, get_du(integrator))
 end
+
+
 
 
 """
@@ -47,7 +50,7 @@ Initializes the ODE problem for our situation
 function initialize_ode(get_negative_grad, x_0, tmax)
     tspan = (0.0, 1)
     prob = ODEProblem(get_negative_grad, x_0, tspan)
-    init(prob, CVODE_BDF())
+    init(prob, QNDF())
 end
 
 global f_eval = 0
@@ -56,6 +59,7 @@ function f(u, p, t)
     global f_eval += 1
     - (2*u)*sech(t)^2
 end
+
 
 
 if abspath(PROGRAM_FILE) == @__FILE__
@@ -71,6 +75,7 @@ end
 # init(prob, CVODE_BDF())
 # step!()
 # sol = solve(prob, lsoda())
+
 
 
 

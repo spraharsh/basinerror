@@ -15,9 +15,10 @@ from pele.distance import Distance
 from pele.optimize import CVODEBDFOptimizer
 from PyCG_DESCENT import CGDescent
 import numpy as np
+
+
 np.random.seed(0)  # check how to use seed sequences later on
 QUENCH_FOLDER_NAME = 'lbfgs_m1_final'
-
 
 def quench_mixed_optimizer(x0, pot, nsteps=2000, **kwargs):
     """ 
