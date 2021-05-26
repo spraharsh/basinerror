@@ -37,7 +37,7 @@ from julia import Main
 
 
 def ode_julia_naive(coords, pot, tol=1e-4, nsteps=20000,
-                    convergence_check=None, solver_type=de.QNDF(),rtol=1e-4, atol=1e-4, **kwargs):
+                    convergence_check=None, solver_type=de.TRBDF2(),rtol=1e-4, atol=1e-4, **kwargs):
     class feval_pot:
         """ wrapper class that interfaces base potential to functions for ode solver
         """
@@ -70,7 +70,7 @@ def ode_julia_naive(coords, pot, tol=1e-4, nsteps=20000,
     f_bound = de.ODEFunction(function_evaluate_pot.get_negative_grad,jac = function_evaluate_pot.get_jacobian)
     # f_free = de.ODEFunction(get_negative_grad,jac = get_jacobian)
     prob = de.ODEProblem(f_bound, coords, tspan)
-    integrator = de.init(prob, solver_type, rtol = rtol, atol = atol)
+    integrator = de.init(prob, solver_type, reltol = rtol, abstol = atol)
     x_ = np.full(len(coords), np.nan)
     while not converged and n<nsteps:
         xold = x_
