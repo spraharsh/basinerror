@@ -66,6 +66,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     u0 = [1, 1]
     integrator = initialize_ode(f, u0,10000)
     println(one_iteration!(integrator))
+    println(integrator.destats)
 end
 
 # tspan = (0, 10)

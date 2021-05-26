@@ -9,6 +9,11 @@ from diffeqpy import de
 from scipy.integrate import LSODA
 from pele.potentials import Harmonic
 j = julia.Julia()
+from julia import Main
+
+# Main.eval("""using SparseArrays""")
+
+
 
 
 # def get_negative_grad(x, p, t):
@@ -16,11 +21,12 @@ j = julia.Julia()
 
  
         
-def get_negative_grad(x, p, t):
-    return -2*x
+# def get_negative_grad(x, p, t):
+#     return -2*x
 
-def get_jacobian(x, p, t):
-    return [[-2, 0, 0], [0, -2, 0], [0, 0, -2]]
+# def get_jacobian(jac, x, p, t):
+#     print(jac)
+#     return [[-2, 0, 0], [0, -2, 0], [0, 0, -2]]
 
 
 
@@ -31,7 +37,7 @@ def get_jacobian(x, p, t):
 
 
 def ode_julia_naive(coords, pot, tol=1e-4, nsteps=20000,
-                    convergence_check=None, solver_type=de.QNDF(), **kwargs):
+                    convergence_check=None, solver_type=de.QNDF(),rtol=1e-4, atol=1e-4, **kwargs):
     class feval_pot:
         """ wrapper class that interfaces base potential to functions for ode solver
         """
@@ -47,13 +53,9 @@ def ode_julia_naive(coords, pot, tol=1e-4, nsteps=20000,
         def get_energy_gradient(self, x):
             self.nfev +=1
             return pot.getEnergyGradient(x.copy())
-        def get_jacobian(self,jac,  x, p,  t=0):
-            print(jac)
+        def get_jacobian(self,  x, p,  t):
             self.nhev += 1
-            jac[0,0] = 2
-            jac[1,1] = 2
-            jac[2, 2] = 2
-            return None
+            return -pot.getEnergyGradientHessian(x.copy())[2]
             
             
     
@@ -65,25 +67,28 @@ def ode_julia_naive(coords, pot, tol=1e-4, nsteps=20000,
     # odefunc = de.ODEFunction(function_evaluate_pot.get_negative_grad, function_evaluate_pot.get_jacobian)
     # initialize ode problem
     tspan = (0, 10000.)
-    # f_bound = de.ODEFunction(function_evaluate_pot.get_negative_grad,jac = function_evaluate_pot.get_jacobian)
-    f_free = de.ODEFunction(get_negative_grad,jac = get_jacobian)
-    prob = de.ODEProblem(f_free, coords, tspan)
-    integrator = de.init(prob, solver_type, rtol = 1e-4, atol = 1e-4)
+    f_bound = de.ODEFunction(function_evaluate_pot.get_negative_grad,jac = function_evaluate_pot.get_jacobian)
+    # f_free = de.ODEFunction(get_negative_grad,jac = get_jacobian)
+    prob = de.ODEProblem(f_bound, coords, tspan)
+    integrator = de.init(prob, solver_type, rtol = rtol, atol = atol)
     x_ = np.full(len(coords), np.nan)
     while not converged and n<nsteps:
         xold = x_
         de.step_b(integrator)
         x_ = integrator.u
-        n+=112
+        n+=1
         converged = convergence_check(de.get_du(integrator))
     res = Result()
     res.coords = x_
     res.energy = pot.getEnergy(x_)
     res.grad = 0
     res.nfev = function_evaluate_pot.nfev
-    
-    res.nsteps = n
+    res.nfev = integrator.destats.nf
+    res.nsteps = integrator.destats.nsolve
+    res.nhev = integrator.destats.nw
+    res.niter = integrator.destats.nsolve
     res.success = converged
+    # res.nhev = function_evaluate_pot.nhev
     return res
 # u0 = 0.5
 # pot = potclass()
@@ -99,6 +104,8 @@ if __name__=="__main__":
     print(res.nfev)
     print(res.coords)
     print(res.nfev)
+    print(res.nhev)
+    print(res.niter)
 
 
 

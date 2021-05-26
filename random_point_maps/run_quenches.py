@@ -11,6 +11,7 @@ from pele.potentials import InversePower
 from params import BASE_DIRECTORY, load_params
 from quenches import quench_LBFGS, quench_cvode_opt, quench_mixed_optimizer, quench_pycg_descent, quench_steepest
 from pele.potentials import Harmonic
+from quench_ode_julia.interface import ode_julia_naive
 
 from timeit import default_timer as timer
 def quench_single_inverse_power(coord_file_name, foldpath, sub_fold_name,
@@ -153,13 +154,14 @@ if __name__== "__main__":
     # opt_params.pop('name', None)
     # fnames = list(map(str, range(ensemble_size)))
     # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
-    quench=quench_cvode_opt
+    quench=ode_julia_naive
     # opt_params = RUN_PARAMETERS_CVODE_32
     opt_name= opt_params['name']
     opt_params.pop('name', None)
     opt_params['sparse'] = True
     fnames = list(map(str, range(ensemble_size)))
     fnames = fnames[:1]
+    opt_params = {"tol":1e-8, 'rtol':1e-5, 'atol':1e-5}
     start = timer()
     quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
     end = timer()
