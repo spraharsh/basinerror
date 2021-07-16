@@ -132,17 +132,6 @@ def load_configuration(foldpath, subfoldname, spawn_key):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 if __name__=="__main__":
     foldname = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     foldpath = str(BASE_DIRECTORY+'/' + foldname)

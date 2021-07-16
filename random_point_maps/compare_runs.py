@@ -158,22 +158,19 @@ def get_all_heuristics(fnames, foldpath, subfoldname, run_fold_name, correct_fol
 
 
 if __name__== "__main__":
-    foldname = "ndim=2phi=0.9seed=0n_part=64r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
-    opt_name = 'cvode_exact'
+    foldname = "ndim=2phi=0.9seed=0n_part=256r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     sub_fold_name = SUB_FOLD_NAME
     fold_path = str(BASE_DIRECTORY+'/' + foldname)
-    ensemble_size = int(5e3)
+    ensemble_size = int(500)
     fnames = list(map(str, range(ensemble_size)))
     # print(average_heuristics(sub_fold_path, opt_name, fnames))
-    identification_tolerance = 1e-2
-    # comparison checks
+    identification_tolerance = 1e-2    # comparison checks
     # opt_a = 'mixed_optimizer_new_lower_tol_2'
-    opt_a = 'mixed_optimizer_new_lower_tol'
-    opt_b = 'cvode_exact_lower'
+    opt_a = 'CVODE_high_tol_julia'
+    # opt_b = 'cvode_exact_julia'
+    #opt_a = 'cvode_julia'
+    opt_a = 'mxopt_1e_m6_T100_julia_new'
+    opt_b = 'cvode_exact_lower_julia'
+    
     # print(compare_runs_2d(fnames, fold_path, sub_fold_name, opt_a, opt_b, identification_tolerance))
     get_all_heuristics(fnames, fold_path, sub_fold_name, opt_a, opt_b, identification_tolerance)
-    
-
-
-
-

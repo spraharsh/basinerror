@@ -27,7 +27,6 @@ class CheckSameMinimum:
                value implies periodic boundary conditions with those conditions
         Returns
         -------
-
         out : None
         """
         self.ctol = ctol

@@ -146,8 +146,6 @@ def generate_save_secondary_params(par, folder):
 
 
 
-
-
 def load_secondary_params(folder):
     """Loads secondary parameters, should write this into a class
     """

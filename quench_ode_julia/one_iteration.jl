@@ -2,7 +2,7 @@ using DifferentialEquations
 using PyCall
 using LSODA
 using Sundials
-# pyimport("pele.potentials")
+pot =pyimport("pele.potentials")
 
 """
 This function ideally defines an interface to the step
@@ -53,13 +53,23 @@ function initialize_ode(get_negative_grad, x_0, tmax)
     init(prob, QNDF())
 end
 
+
 global f_eval = 0
+
 
 function f(u, p, t)
     global f_eval += 1
     - (2*u)*sech(t)^2
 end
 
+
+
+th = pot.InversePower(2.5, 2, [1.0, 1.0], ndim=2)
+
+energy = th.getEnergy([1.0, 1.0, 2.0, 1.0])
+
+
+println(energy)
 
 
 if abspath(PROGRAM_FILE) == @__FILE__

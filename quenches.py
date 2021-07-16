@@ -64,6 +64,7 @@ def quench_cvode_opt(x0, pot, nsteps=1000000, **kwargs):
         pot, x0 with these default parameters should give identical results
         between different pieces.
     """
+    print(kwargs)
     cvode = CVODEBDFOptimizer(pot, x0, **kwargs)
     cvode.run(nsteps)
     res = cvode.get_result()

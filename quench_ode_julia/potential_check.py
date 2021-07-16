@@ -25,14 +25,26 @@ potential = InversePower(2.5,
                          radii=test_radii,
                          boxvec=[box_length, box_length])
 
-np.savetxt('energy.csv', np.array([potential.getEnergy(test_coords)]), delimiter=',')
-np.savetxt('gradient.csv', potential.getEnergyGradient(test_coords)[1], delimiter=',')
-np.savetxt('hessian.csv', potential.getEnergyGradientHessian(test_coords)[2], delimiter=',')
+
+test_gradient = np.copy(test_coords)
+
+potential.getEnergyGradientInPlace(test_coords, test_gradient)
+
+grad = potential.getEnergyGradient(test_coords)
+print(test_gradient)
+print(grad)
 
 
 
 
 
-print(potential.getEnergy(test_coords))
-print(potential.getEnergyGradient(test_coords)[1])
-print(potential.getEnergyGradientHessian(test_coords)[2])
+# np.savetxt('energy.csv', np.array([potential.getEnergy(test_coords)]), delimiter=',')
+# np.savetxt('gradient.csv', potential.getEnergyGradient(test_coords)[1], delimiter=',')
+# np.savetxt('hessian.csv', potential.getEnergyGradientHessian(test_coords)[2], delimiter=',')
+
+
+
+
+# print(potential.getEnergy(test_coords))
+# print(potential.getEnergyGradient(test_coords)[1])
+# print(potential.getEnergyGradientHessian(test_coords)[2])

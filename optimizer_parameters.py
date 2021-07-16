@@ -27,6 +27,13 @@ RUN_PARAMETERS_CVODE_8 = {
     "atol": 1e-4                 # relative absolute tolerance of path
 }
 
+RUN_PARAMETERS_JULIA_8 = {
+    "name": "julia_high_tol",
+    "tol": 1e-6,                   # tolerance with which minimum is identified
+    "rtol": 1e-1,                # relative local tolerance of path
+    "atol": 1e-1                 # relative absolute tolerance of path
+}
+
 
 # These parameters are for lower tolerance runs
 # for figuring out exact basins

@@ -59,8 +59,6 @@ RUN_PARAMETERS_CGDESCENT_32 = {
     "tol": 1e-8,                   # tolerance with which minimum is identified
     "M":0
 }
-
-
 # we can just go with conv tol at this level and get good answers
 # we can still be faster increasing it of course
 # I also had to increase conv factor a bit because it messed up a few directions
@@ -175,6 +173,39 @@ RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T100 = {
     # convexity factor  addition to make it more convex
     "conv_factor": 2.0
 }
+
+RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T300 = {
+    "name": "mxopt_1e_m6_T300",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-6,                # relative local tolerance of path
+    "atol": 1e-6,                 # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 300,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
+
+RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T200 = {
+    "name": "mxopt_1e_m6_T300",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-6,                # relative local tolerance of path
+    "atol": 1e-6,                 # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 200,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2.0
+}
+
 
 RUN_PARAMETERS_MXOPT_RTOL_1e_m7 = {
     "name": "mxopt_1e_m7",

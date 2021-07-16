@@ -1,4 +1,4 @@
-from optimizer_parameters_32 import RUN_PARAMETERS_CGDESCENT_32, RUN_PARAMETERS_CVODE_32, RUN_PARAMETERS_CVODE_32_TEST, RUN_PARAMETERS_CVODE_EXACT_32, RUN_PARAMETERS_CVODE_EXACT_LOWER_32, RUN_PARAMETERS_CVODE_RTOL_1e_m6, RUN_PARAMETERS_CVODE_RTOL_1e_m7, RUN_PARAMETERS_LBFGS_M_1_32, RUN_PARAMETERS_LBFGS_M_4_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2, RUN_PARAMETERS_MODIFIED_FIRE_32, RUN_PARAMETERS_MXOPT_RTOL_1e_m6, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T100, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T200, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T300, RUN_PARAMETERS_MXOPT_RTOL_1e_m7
+from optimizer_parameters_32 import RUN_PARAMETERS_CGDESCENT_32, RUN_PARAMETERS_CVODE_32, RUN_PARAMETERS_CVODE_32_TEST, RUN_PARAMETERS_CVODE_EXACT_32, RUN_PARAMETERS_CVODE_EXACT_LOWER_32, RUN_PARAMETERS_CVODE_RTOL_1e_m6, RUN_PARAMETERS_CVODE_RTOL_1e_m7, RUN_PARAMETERS_LBFGS_M_1_32, RUN_PARAMETERS_LBFGS_M_4_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL, RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2, RUN_PARAMETERS_MODIFIED_FIRE_32, RUN_PARAMETERS_MXOPT_RTOL_1e_m6, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T100, RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T300, RUN_PARAMETERS_MXOPT_RTOL_1e_m7
 from optimizer_parameters_16 import RUN_PARAMETERS_CGDESCENT_16, RUN_PARAMETERS_CVODE_16, RUN_PARAMETERS_CVODE_EXACT_16, RUN_PARAMETERS_CVODE_EXACT_LOWER_16, RUN_PARAMETERS_LBFGS_M_1_16, RUN_PARAMETERS_LBFGS_M_4_16, RUN_PARAMETERS_MIXED_OPTIMIZER_16, RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16, RUN_PARAMETERS_MODIFIED_FIRE_16
 from optimizer_parameters import *
 from utils.cell_scale import get_box_length, get_ncellsx_scale
@@ -11,9 +11,6 @@ from pele.potentials import InversePower
 from params import BASE_DIRECTORY, load_params
 from quenches import quench_LBFGS, quench_cvode_opt, quench_mixed_optimizer, quench_pycg_descent, quench_steepest
 from pele.potentials import Harmonic
-from quench_ode_julia.interface import ode_julia_naive
-from mxopt_jl import quench_single_mxopt_inverse_power_julia
-from assigner_jl import quench_single_CVODE_inverse_power_julia
 from timeit import default_timer as timer
 from multiprocessing import Pool
 
@@ -183,8 +180,8 @@ if __name__== "__main__":
     # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
     # print(fnames)
     # quench = quench_cvode_opt
-    opt_params = RUN_PARAMETERS_MXOPT_RTOL_1e_m6_T300
-    opt_params['name'] += '_julia_new'
+    opt_params = RUN_PARAMETERS_CGDESCENT_8
+    # opt_params['name'] += '_julia_new'
     # opt_name= opt_params['name']
     # opt_params.pop('name', None)
     # fnames = list(map(str, range(ensemble_size)))
@@ -198,7 +195,7 @@ if __name__== "__main__":
     # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params)
     # quench= quench_mixed_optimizer
     print(opt_params)
-    quench = ode_julia_naive
+    quench = quench_pycg_descent
     # opt_params = RUN_PARAMETERS_CVODE_32
     opt_name= opt_params['name']
     opt_params.pop('name', None)
@@ -206,9 +203,8 @@ if __name__== "__main__":
     fnames = list(map(str, range(ensemble_size)))
     fnames = fnames[:500]
     # first run to avoid including compile time in heuristics
-    quench_multiple(foldpath, SUB_FOLD_NAME, fnames[:1],opt_name, quench, opt_params, quench=quench_single_mxopt_inverse_power_julia)
     start = timer()
-    quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params, quench=quench_single_mxopt_inverse_power_julia)
+    quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params, quench=quench_single_inverse_power)
     # quench_multiple(foldpath, SUB_FOLD_NAME, fnames,opt_name, quench, opt_params, quench=quench_single_CVODE_inverse_power_julia)
     end = timer()
     time = end - start

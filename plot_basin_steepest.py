@@ -89,7 +89,7 @@ def generate_animation_plots(data_folder, foldname):
 if __name__ == "__main__":
 
     # load data
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=8r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     minima_database_path = BASE_DIRECTORY + '/' + foldnameInversePower + '/' + MINIMA_DATABASE_NAME
     # quench_type = "cvode_high_tol_final"
     # quench_type = "fire_final"
@@ -106,11 +106,13 @@ if __name__ == "__main__":
 
 
     quench_type = QUENCH_FOLDER_NAME # if you want to plot the last one you get from map_basin_steepest
+    # quench_type = 'QNDF1e-07'
+    # quench_type = 'CVODE_BDF1e-11'
     # quench_type = 'mxopt_2'
     # quench_type = 'cg_descent'
     # quench_type = 'lbfgs_m1_2'
     # quench_type = 'lbfgs_m4_2'
-    quench_type = 'fire_2'
+    # quench_type = 'fire_2'
     # quench_type = 'cvode_exact_initial_2'
     # quench_type= ''
 
@@ -186,7 +188,7 @@ if __name__ == "__main__":
         plt.axis('off')
         plt.savefig(savedir + '/' + z + '.svg', bbox_inches='tight',pad_inches = 0)
         plt.show()
-    print(percentage_same('cvode_exact_initial_2/z_data_30_l6_2/0.0', quench_type + '/z_data_30_l6_2/0.0', foldnameInversePower, minima_l=minima_l))
+        # print(percentage_same('CVODE_BDF1e-11/z_data_30_l6_2/0.0', quench_type + '/z_data_30_l6_2/0.0', foldnameInversePower, minima_l=minima_l))
 # if __name__ == "__main__":
 #     ncolors = 30
 #     gradient = np.linspace(0, 1, ncolors)

@@ -105,7 +105,6 @@ class CheckSameMinimum:
         -------
         out : None
         """
-
         # we want reasonable dimensions on the coordinates first
         # because we care about the coordinates of each particle for these
         # algorithms. we also impose periodic boundary conditions
