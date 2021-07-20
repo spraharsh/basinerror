@@ -240,5 +240,3 @@ if __name__ == "__main__":
     os.makedirs(datadir, exist_ok=True)
     Param = SystemParamInversePowerBinary
     generate_save_all_params_ip_binary(Param, datadir)
-
-
