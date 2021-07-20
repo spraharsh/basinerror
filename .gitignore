@@ -9,3 +9,4 @@ datainv/*
 /*.svg
 /mapout.txt
 /mapout_fire.txt
+*.pyc
