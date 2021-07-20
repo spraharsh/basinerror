@@ -144,8 +144,6 @@ def generate_save_secondary_params(par, folder):
     np.savetxt(folder + '/initial_coords.txt', initial_coords, delimiter=',')
     np.savetxt(folder + '/box_length.txt', [box_length], delimiter=',')
 
-
-
 def load_secondary_params(folder):
     """Loads secondary parameters, should write this into a class
     """

@@ -12,7 +12,6 @@ from random_vectors import VEC_8_0, VEC_8_1, VEC_8_2,  VEC_16_0, VEC_16_1, VEC_1
 from utils.cell_scale import get_box_length, get_ncellsx_scale
 
 
-
 def map_binary_inversepower_mxopt_jl(foldername,
                                      particle_coords,
                                      optimizer, opt_param_dict, random_coord_0=0, random_coord_1=-1, z=0):
@@ -33,7 +32,7 @@ def map_binary_inversepower_mxopt_jl(foldername,
     quench_coords = initial_coords.copy()
 
     quench_coords = quench_coords + \
-    particle_coords[0]*VEC_32_0 + particle_coords[1]*VEC_32_1 + z*VEC_32_2
+    particle_coords[0]*VEC_16_0 + particle_coords[1]*VEC_16_1 + z*VEC_16_2
 
     # quench_coords = quench_coords + \
     #     particle_coords[0]*VEC_8_0 + particle_coords[1]*VEC_8_1 + z*VEC_8_2
@@ -47,7 +46,7 @@ def map_binary_inversepower_mxopt_jl(foldername,
     print(boxv)
     potential = Main.pot.InversePower(sysparams.power.value,
                              sysparams.eps.value,
-                             use_cell_lists=True,
+                             use_cell_lists=False,
                              ndim=sysparams.ndim.value,
                              radii=hs_radii * 1.0,
                              boxvec=boxv)

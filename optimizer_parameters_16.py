@@ -20,6 +20,20 @@ RUN_PARAMETERS_MODIFIED_FIRE_16 = {
     "astart": 0.1
 }
 
+
+RUN_PARAMETERS_MODIFIED_FIRE_16_TOL = {
+    "name": "modified_fire",
+    "tol": 1e-8,
+    "dtstart": 0.1,
+    "dtmax": 1,
+    "maxstep": 0.5,
+    "Nmin": 5,
+    "finc": 1.1,
+    "fdec": 0.5,
+    "fa": 0.99,
+    "astart": 0.1
+}
+
 RUN_PARAMETERS_CVODE_16 = {
     "name": "CVODE",
     "tol": 1e-6,                   # tolerance with which minimum is identified
@@ -36,6 +50,21 @@ RUN_PARAMETERS_CVODE_EXACT_16 = {
     "rtol": 1e-8,                # relative local tolerance of path
     "atol": 1e-8                 # relative absolute tolerance of path
 }
+
+
+RUN_PARAMETERS_CVODE_EXACT_16_TOL = {
+    "name": "cvode_exact_tol",
+    "tol": 1e-8,                   # tolerance with which minimum is identified
+    "rtol": 1e-8,                # relative local tolerance of path
+    "atol": 1e-8                 # relative absolute tolerance of path
+}
+
+# run parameter at one order lower tolerance to figure out
+RUN_PARAMETERS_CVODE_EXACT_LOWER_16_TOL = RUN_PARAMETERS_CVODE_EXACT_16.copy()
+RUN_PARAMETERS_CVODE_EXACT_LOWER_16_TOL['name'] = 'CVODE exact tol lower tolerance'
+RUN_PARAMETERS_CVODE_EXACT_LOWER_16_TOL['rtol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER_16_TOL['rtol'] * 1e-1
+RUN_PARAMETERS_CVODE_EXACT_LOWER_16_TOL['atol'] = RUN_PARAMETERS_CVODE_EXACT_LOWER_16_TOL['atol'] * 1e-1
+
 
 # run parameter at one order lower tolerance to figure out
 RUN_PARAMETERS_CVODE_EXACT_LOWER_16 = RUN_PARAMETERS_CVODE_EXACT_16.copy()
@@ -68,6 +97,31 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_16 = {
     # convexity factor  addition to make it more convex
     "conv_factor": 2,
 }
+
+RUN_PARAMETERS_MIXED_OPTIMIZER_16_TOL = {
+    # parameters CVODE
+    "name": "mixed_optimizer_tol",
+    "tol": 1e-8,   # tolerance with which minimum is identified
+    "rtol": 1e-4,   # relative local tolerance of path
+    "atol": 1e-4,   # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 30,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2,
+}
+
+
+
+
+
+
+
+
 
 
 # this happens to be LBFGS as written in pele.
@@ -103,6 +157,23 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16 = {
     # parameters CVODE
     "name": "mixed_optimizer_new",
     "tol": 1e-6,   # tolerance with which minimum is identified
+    "rtol": 1e-4,   # relative local tolerance of path
+    "atol": 1e-4,   # relative absolute tolerance of path
+    # parameters Newtons
+    # number of steps at which a convergence step is run
+    "T": 30,
+    # Newton step size only make sense for stepsize 1
+    "step": 1,
+    # convexity tolerance i.e |\lambda_min/\lambda_max| <conv_tol
+    "conv_tol":  1e-8,
+    # convexity factor  addition to make it more convex
+    "conv_factor": 2
+}
+
+RUN_PARAMETERS_MIXED_OPTIMIZER_T_30_16_TOL = {
+    # parameters CVODE
+    "name": "mixed_optimizer_new",
+    "tol": 1e-8,   # tolerance with which minimum is identified
     "rtol": 1e-4,   # relative local tolerance of path
     "atol": 1e-4,   # relative absolute tolerance of path
     # parameters Newtons

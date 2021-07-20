@@ -1,0 +1,11 @@
+datainv/*
+/.prettierrc.json
+/.vscode/
+/__pycache__/
+/blah.txt
+/configuration0.pdf
+/*.png
+/*.pdf
+/*.svg
+/mapout.txt
+/mapout_fire.txt

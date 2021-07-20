@@ -32,14 +32,14 @@ from write_run_data_to_file import write_run_data_to_file
 
 
 
-# from map_basin_mxopt_jl import map_binary_inversepower_mxopt_jl
+from map_basin_mxopt_jl import map_binary_inversepower_mxopt_jl
 
 
 QUENCH_FOLDER_NAME = 'scratch'
 # rtol = 1e-6
 # atol = rtol
-QUENCH_FOLDER_NAME = 'Fire'
-MINIMA_DATABASE_NAME = 'minima_database_jul.npy'
+QUENCH_FOLDER_NAME = 'mixed_descent_lower_200'
+MINIMA_DATABASE_NAME = 'minima_database_jul_main_200.npy'
 
 # things we need to define a run: foldername
 # parameter dictionary
@@ -59,16 +59,12 @@ def map_binary_inversepower(foldername,
     sysparams = load_params(foldpath)
     (hs_radii, initial_coords, box_length) = load_secondary_params(foldpath)
     assert (sysparams.ndim.value == 2)
-    minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
-                                delimiter=',')
-    minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
-                                delimiter=',')
     quench_coords = initial_coords.copy()
 
     # print(quench_coords)
     # print(VEC_8_0)
     quench_coords = quench_coords + \
-    particle_coords[0]*VEC_32_0 + particle_coords[1]*VEC_32_1 + z*VEC_32_2
+    particle_coords[0]*VEC_16_0 + particle_coords[1]*VEC_16_1 + z*VEC_16_2
 
     # quench_coords = quench_coords + \
     #     particle_coords[0]*VEC_8_0 + particle_coords[1]*VEC_8_1 + z*VEC_8_2
@@ -270,11 +266,11 @@ def map_pointset_loop_xy(foldname,
 
 
 if __name__ == "__main__":
-    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=32r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
+    foldnameInversePower = "ndim=2phi=0.9seed=0n_part=16r1=1.0r2=1.4rstd1=0.05rstd2=0.06999999999999999use_cell_lists=0power=2.5eps=1.0"
     coord_arg_0 = 0
     coord_arg_1 = 1
     # set nmesh =1
-    nmesh = 100
+    nmesh = 400
     dim = 2
     phi = 0.9
     data_location = BASE_DIRECTORY + '/' + foldnameInversePower
@@ -299,7 +295,7 @@ if __name__ == "__main__":
     optimizer = modifiedfire_cpp
     identification_tolerance = 1e-2
 
-    parameter_dict = op32.RUN_PARAMETERS_MODIFIED_FIRE_32
+    parameter_dict = op32.RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2
     optimizer_parameters = parameter_dict.copy()
     optimizer_parameters.pop('name', None)
     print(parameter_dict)
@@ -314,7 +310,7 @@ if __name__ == "__main__":
                                    ndim=2,
                                    use_minima_database=True,
                                    minima_database_path=minima_database_path,
-                                   coord_arg_0=coord_arg_0, coord_arg_1=coord_arg_1, z=z, single_func=map_binary_inversepower)
+                                   coord_arg_0=coord_arg_0, coord_arg_1=coord_arg_1, z=z, single_func=map_binary_inversepower_mxopt_jl)
 
     # print(res)
     # # boollist = np.loadtxt(BASE_DIRECTORY + '/' + foldnameInversePower + '/' + 'quench_results_fire.txt')
@@ -337,6 +333,7 @@ if __name__ == "__main__":
         '/' + QUENCH_FOLDER_NAME
 
     opt_name = parameter_dict['name'].replace(" ", "_")
+    opt_name += "julia"
     # write run data to two different locations
     write_run_data_to_file(parameter_dict, run_diagnostics,
                            folder_location=data_location, name=opt_name + '.yaml')

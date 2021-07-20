@@ -99,7 +99,7 @@ RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL = {
 RUN_PARAMETERS_MIXED_OPTIMIZER_32_LOWER_TOL_2 = {
     # parameters CVODE
     "name": "mixed_optimizer_new_lower_tol_2",
-    "tol": 1e-8,   # tolerance with which minimum is identified
+    "tol": 1e-6,   # tolerance with which minimum is identified
     "rtol": 1e-5,   # relative local tolerance of path
     "atol": 1e-5,   # relative absolute tolerance of path
     # parameters Newtons

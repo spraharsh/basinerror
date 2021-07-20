@@ -105,6 +105,10 @@ class CheckSameMinimum:
         -------
         out : None
         """
+        if failed_quench:
+            self.orderparamlist.append(-1)
+            return None
+
         # we want reasonable dimensions on the coordinates first
         # because we care about the coordinates of each particle for these
         # algorithms. we also impose periodic boundary conditions
@@ -113,9 +117,13 @@ class CheckSameMinimum:
         if self.rattler_check:
             # returns rattlers in case there are any
             # and whether state is jammed (i.e not_fluid)
-            not_fluid, rattlers = self._find_rattlers(final_minimum.flatten())
+            try:
+                not_fluid, rattlers = self._find_rattlers(final_minimum.flatten()) 
+            except:
+                self.orderparamlist.append(-1) # this is a hack since the rattler check occasionally fails
+                return None
             if np.any(rattlers==0):
-                self.nrattlermin +=1
+                self.nrattlermin += 1
         else:
             rattlers = None
             not_fluid = False

@@ -13,7 +13,7 @@ CORRECT_MINIMA_FOLDER = 'correct_minima'
 
 
 
-def percentage_same(minima_path_a, minima_path_b, foldnameInversePower, ctol=1e-10, minima_l=2000):
+def percentage_same(minima_path_a, minima_path_b, foldnameInversePower, ctol=1e-10, minima_l=2000000):
     """
     Checks the percentage of minima that are same in path a and path b, and returns the fraction of minima
     that are not the same.
@@ -29,7 +29,7 @@ def percentage_same(minima_path_a, minima_path_b, foldnameInversePower, ctol=1e-
     print(op_a_arr)
     op_b_arr = data_b.order_params
     print(op_b_arr)
-    return (sum(op_a_arr!=op_b_arr))/len(op_b_arr)
+    return (sum(op_a_arr==op_b_arr))/len(op_b_arr)
 
 
 def correct_minima_check(minima_path_a, foldnameInversePower):
