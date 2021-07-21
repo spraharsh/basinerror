@@ -5,7 +5,7 @@ import os
 from pele.utils.cell_scale import get_box_length, get_ncellsx_scale
 from enum import Enum
 import json
-from global_folder_vars import BASE_DIRECTORY
+from .global_folder_vars import BASE_DIRECTORY
 import re
 
 

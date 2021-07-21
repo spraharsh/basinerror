@@ -27,13 +27,10 @@ def construct_point_set_nd(center_coords, nmesh_list, vec_list, n_scale_list, bo
         set of points in n dimensions around a center_coords
     """
 
-    
-    
     # minimum_coords = np.loadtxt(foldpath + '/coords_of_minimum.txt',
     #                             delimiter=',')
 
     center = center_coords
-    center = [-box_length/2, -box_length/2]
     vec_arr = np.array(vec_list)
     n_scale_arr = np.array(n_scale_list)
 
@@ -48,25 +45,17 @@ def construct_point_set_nd(center_coords, nmesh_list, vec_list, n_scale_list, bo
                     print(vec_arr[i], vec_arr[j])
                     raise ValueError("Vectors are not orthogonal")
 
+    # construct a unit mesh for each dimension
+    unit_mesh = construct_plane_centered_mesh(nmesh_list)
+    # calculate displacement vectors for each mesh point
+    displacement_vecs = np.einsum('ij,jk->ik', unit_mesh, scaled_vecs)
+
+    # add displacement vectors to the center
+    displacement_vecs = displacement_vecs + center
+    return displacement_vecs
 
 
-
-    if (nmesh != 1):
-        # construct a unit mesh for each dimension
-        unit_mesh = construct_plain_centered_mesh(nmesh_list)
-
-        # calculate displacement vectors for each mesh point
-        displacement_vecs = np.einsum('ij,jk->ik', unit_mesh, scaled_vecs)
-
-        # add displacement vectors to the center
-        displacement_vecs = displacement_vecs + center
-        return displacement_vecs
-    else:
-        return np.array([center_coords])
-
-
-
-def construct_plain_centered_mesh(nmesh_list):
+def construct_plane_centered_mesh(nmesh_list):
     """ Constructs a unit mesh of nmesh points in each dimension
         that is centered around the origin.
     Parameters
@@ -76,10 +65,8 @@ def construct_plain_centered_mesh(nmesh_list):
     """
     mesh_points = []
     for i in range(len(nmesh_list)):
-        mesh_points.append(np.linspace(0, 1, nmesh_list[i]))
-    return np.array(np.meshgrid(*(np.array(mesh_points)- 0.5))).T.reshape(-1, len(nmesh_list))
-
-
-
-if __name__ == '__main__':
-    pass
+        if nmesh_list[i] == 1:
+            mesh_points.append(np.array([0.5]))
+        else:
+            mesh_points.append(np.linspace(0, 1, nmesh_list[i]))
+    return np.array(np.meshgrid(*(np.array(mesh_points) - 0.5))).T.reshape(-1, len(nmesh_list))
