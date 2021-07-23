@@ -7,6 +7,7 @@ from enum import Enum
 import json
 from .global_folder_vars import BASE_DIRECTORY
 import re
+from pele.potentials import InversePower
 
 
 class SystemParamHSWCA(Enum):
@@ -14,6 +15,7 @@ class SystemParamHSWCA(Enum):
         a start coordinate set for minimization. As done for HS_WCA
     """
     # general parameters
+    name = "HS_WCA"
     ndim = 3
     phi = 0.7
     # The seed should ideally determine every randomly generated
@@ -23,7 +25,6 @@ class SystemParamHSWCA(Enum):
     n_part = 8
     radius_mean = 1.0
     radius_std = 0.05
-
     # potential parameters
     use_cell_lists = False
     pot_sca = 0.1
@@ -37,6 +38,7 @@ class SystemParamInversePower(Enum):
         As done for inverse powe
     """
     # general parameters
+    name = "InversePower"
     ndim = 3
     phi = 0.9
     # The seed should ideally determine every randomly generated
@@ -59,6 +61,7 @@ class SystemParamInversePowerBinary(Enum):
         As done for inverse powe
     """
     # general parameters
+    name = "InversePowerBinary"
     ndim = 2
     phi = 0.9
     # The seed should ideally determine every randomly generated
@@ -231,7 +234,29 @@ def generate_save_all_params_ip_binary(param, datadir, seed=0):
     folder = make_system_folder(param, datadir=datadir)
     # necessary for legacy compatibility
     save_params(param, folder)
-    generate_save_run_params_ip_binary(param, folder, seed)     
+    generate_save_run_params_ip_binary(param, folder, seed)
+
+
+def setup_inverse_power(SysParams, radii, box_length):
+    """ sets up the inverse power potential
+
+    Parameters
+    ----------
+    SysParams : Enum
+        Parameters for the system we wish to study
+    radii : np.ndarray
+    radii of particles in the system
+    box_length : float
+    length of the box
+    """
+    box_vec = np.array([box_length]*SysParams.ndim.value)
+    potential = InversePower(SysParams.power.value,
+                             SysParams.eps.value,
+                             use_cell_lists=SysParams.use_cell_lists.value,
+                             ndim=SysParams.ndim.value,
+                             radii=radii * 1.0,
+                             boxvec=box_vec)
+    return potential
 
 
 if __name__ == "__main__":
@@ -240,3 +265,4 @@ if __name__ == "__main__":
     os.makedirs(datadir, exist_ok=True)
     Param = SystemParamInversePowerBinary
     generate_save_all_params_ip_binary(Param, datadir)
+    # load system parameters from the folder
